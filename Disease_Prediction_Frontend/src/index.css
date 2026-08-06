@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-heading: 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #F8FAFC;
+    color: #0F172A;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .dark body,
+  html.dark body {
+    background-color: #090D16;
+    color: #F8FAFC;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Modern SaaS Cards & Panels */
+.clinical-card {
+  background-color: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem; /* 16px */
+  box-shadow: 0 1px 3px 0 rgb(15 23 42 / 0.03), 0 1px 2px -1px rgb(15 23 42 / 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .clinical-card {
+  background-color: #0F172A;
+  border-color: #1E293B;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+}
+
+.clinical-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 6px -1px rgb(15 23 42 / 0.05), 0 2px 4px -2px rgb(15 23 42 / 0.03);
+}
+
+.dark .clinical-card:hover {
+  border-color: #334155;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+}
+
+.clinical-card-interactive {
+  background-color: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 1rem; /* 16px */
+  box-shadow: 0 1px 3px 0 rgb(15 23 42 / 0.03), 0 1px 2px -1px rgb(15 23 42 / 0.03);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .clinical-card-interactive {
+  background-color: #0F172A;
+  border-color: #1E293B;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+}
+
+.clinical-card-interactive:hover {
+  background-color: #ffffff;
+  border-color: #93C5FD;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(37 99 235 / 0.08), 0 4px 6px -4px rgb(37 99 235 / 0.04);
+}
+
+.dark .clinical-card-interactive:hover {
+  background-color: #1E293B;
+  border-color: #2563EB;
+  box-shadow: 0 10px 15px -3px rgb(37 99 235 / 0.2);
+}
+
+/* Form Inputs */
+.clinical-input {
+  background-color: #ffffff;
+  border: 1px solid #E2E8F0;
+  color: #0F172A;
+  border-radius: 0.75rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dark .clinical-input {
+  background-color: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
+}
+
+.clinical-input:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Clinical Status Badges */
+.clinical-badge-low {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.dark .clinical-badge-low {
+  background-color: rgba(6, 78, 59, 0.3);
+  color: #34D399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.clinical-badge-medium {
+  background-color: #FFFBEB;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+.dark .clinical-badge-medium {
+  background-color: rgba(120, 53, 15, 0.3);
+  color: #FBBF24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.clinical-badge-high {
+  background-color: #FFF7ED;
+  color: #EA580C;
+  border: 1px solid #FFEDD5;
+}
+
+.dark .clinical-badge-high {
+  background-color: rgba(124, 45, 18, 0.3);
+  color: #FB923C;
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.clinical-badge-critical {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.dark .clinical-badge-critical {
+  background-color: rgba(136, 19, 55, 0.35);
+  color: #F87171;
+  border-color: rgba(244, 63, 94, 0.4);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #090D16;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
