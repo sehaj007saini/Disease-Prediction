@@ -10,12 +10,11 @@ const DISEASE_PRESETS = {
     icon: Droplet,
     color: 'text-blue-600',
     fields: [
-      { name: 'glucose', label: 'Glucose Level', unit: 'mg/dL', min: 50, max: 300, default: 120, normal: 95, elevated: 185 },
+      { name: 'glucose', label: 'Blood Glucose Level', unit: 'mg/dL', min: 50, max: 300, default: 120, normal: 95, elevated: 185 },
+      { name: 'hba1c', label: 'HbA1c Level', unit: '%', min: 3, max: 15, default: 5.5, normal: 5.0, elevated: 7.5 },
       { name: 'bmi', label: 'Body Mass Index (BMI)', unit: 'kg/m²', min: 10, max: 60, default: 24.5, normal: 22.0, elevated: 34.2 },
-      { name: 'bloodPressure', label: 'Diastolic BP', unit: 'mm Hg', min: 40, max: 140, default: 72, normal: 70, elevated: 92 },
-      { name: 'insulin', label: '2-Hour Serum Insulin', unit: 'mu U/ml', min: 0, max: 800, default: 85, normal: 40, elevated: 220 },
-      { name: 'pregnancies', label: 'Pregnancies Count', unit: 'count', min: 0, max: 20, default: 1, normal: 0, elevated: 4 },
-      { name: 'skinThickness', label: 'Triceps Skin Fold', unit: 'mm', min: 0, max: 99, default: 20, normal: 18, elevated: 38 },
+      { name: 'hypertension', label: 'Hypertension History', unit: '0 (No) / 1 (Yes)', min: 0, max: 1, default: 0, normal: 0, elevated: 1 },
+      { name: 'heart_disease', label: 'Heart Disease History', unit: '0 (No) / 1 (Yes)', min: 0, max: 1, default: 0, normal: 0, elevated: 1 },
       { name: 'age', label: 'Patient Age', unit: 'years', min: 1, max: 120, default: 42, normal: 30, elevated: 58 },
     ]
   },
@@ -24,35 +23,35 @@ const DISEASE_PRESETS = {
     icon: HeartPulse,
     color: 'text-rose-600',
     fields: [
-      { name: 'cholesterol', label: 'Serum Cholesterol', unit: 'mg/dL', min: 100, max: 600, default: 210, normal: 175, elevated: 295 },
-      { name: 'restingBP', label: 'Resting Blood Pressure', unit: 'mm Hg', min: 80, max: 220, default: 128, normal: 118, elevated: 165 },
-      { name: 'maxHR', label: 'Maximum Heart Rate', unit: 'bpm', min: 60, max: 220, default: 150, normal: 165, elevated: 105 },
-      { name: 'chestPainType', label: 'Chest Pain Severity', unit: 'scale 0-3', min: 0, max: 3, default: 1, normal: 0, elevated: 3 },
-      { name: 'exerciseAngina', label: 'Exercise Induced Angina', unit: 'binary 0/1', min: 0, max: 1, default: 0, normal: 0, elevated: 1 },
-      { name: 'oldpeak', label: 'ST Depression (Oldpeak)', unit: 'mm', min: 0, max: 6, default: 1.0, normal: 0.2, elevated: 3.5 },
+      { name: 'age', label: 'Patient Age', unit: 'years', min: 1, max: 120, default: 55, normal: 35, elevated: 68 },
+      { name: 'hypertension', label: 'Hypertension History', unit: '0 (No) / 1 (Yes)', min: 0, max: 1, default: 0, normal: 0, elevated: 1 },
+      { name: 'bmi', label: 'Body Mass Index (BMI)', unit: 'kg/m²', min: 10, max: 60, default: 27.5, normal: 22.0, elevated: 33.0 },
+      { name: 'glucose', label: 'Blood Glucose Level', unit: 'mg/dL', min: 50, max: 300, default: 110, normal: 95, elevated: 160 },
+      { name: 'hba1c', label: 'HbA1c Level', unit: '%', min: 3, max: 15, default: 5.8, normal: 5.2, elevated: 7.0 },
     ]
   },
-  parkinsons: {
-    title: "Parkinson's Voice Metric Analysis",
+  hypertension: {
+    title: 'Hypertension & Vascular Risk',
+    icon: Activity,
+    color: 'text-amber-600',
+    fields: [
+      { name: 'age', label: 'Patient Age', unit: 'years', min: 1, max: 120, default: 50, normal: 35, elevated: 62 },
+      { name: 'heart_disease', label: 'Heart Disease History', unit: '0 (No) / 1 (Yes)', min: 0, max: 1, default: 0, normal: 0, elevated: 1 },
+      { name: 'bmi', label: 'Body Mass Index (BMI)', unit: 'kg/m²', min: 10, max: 60, default: 28.0, normal: 22.5, elevated: 34.0 },
+      { name: 'glucose', label: 'Blood Glucose Level', unit: 'mg/dL', min: 50, max: 300, default: 115, normal: 95, elevated: 170 },
+      { name: 'hba1c', label: 'HbA1c Level', unit: '%', min: 3, max: 15, default: 5.7, normal: 5.1, elevated: 7.2 },
+    ]
+  },
+  kidney_disease: {
+    title: 'Chronic Kidney Disease Assessment',
     icon: Brain,
     color: 'text-purple-600',
     fields: [
-      { name: 'fo_hz', label: 'MDVP:Fo Vocal Frequency', unit: 'Hz', min: 80, max: 300, default: 150, normal: 195, elevated: 112 },
-      { name: 'jitter_pct', label: 'MDVP:Jitter Frequency', unit: '%', min: 0, max: 0.1, default: 0.005, normal: 0.002, elevated: 0.025 },
-      { name: 'shimmer', label: 'MDVP:Shimmer Amplitude', unit: 'dB', min: 0, max: 0.2, default: 0.03, normal: 0.015, elevated: 0.095 },
-      { name: 'nhr', label: 'Noise-to-Harmonic Ratio', unit: 'NHR', min: 0, max: 1, default: 0.02, normal: 0.008, elevated: 0.18 },
-      { name: 'hnr', label: 'Harmonic-to-Noise Ratio', unit: 'HNR', min: 0, max: 40, default: 22, normal: 28, elevated: 12 },
-    ]
-  },
-  general: {
-    title: 'General Clinical Panel Assessment',
-    icon: Activity,
-    color: 'text-emerald-600',
-    fields: [
-      { name: 'hemoglobin', label: 'Hemoglobin Concentration', unit: 'g/dL', min: 5, max: 20, default: 14.2, normal: 14.5, elevated: 9.8 },
-      { name: 'wbcCount', label: 'WBC Count', unit: 'cells/mcL', min: 2000, max: 30000, default: 7200, normal: 6500, elevated: 16800 },
-      { name: 'temperature', label: 'Body Temperature', unit: '°F', min: 95, max: 106, default: 98.6, normal: 98.6, elevated: 102.4 },
-      { name: 'heartRate', label: 'Resting Pulse Rate', unit: 'bpm', min: 40, max: 180, default: 72, normal: 68, elevated: 115 },
+      { name: 'age', label: 'Patient Age', unit: 'years', min: 1, max: 120, default: 60, normal: 40, elevated: 72 },
+      { name: 'hypertension', label: 'Hypertension History', unit: '0 (No) / 1 (Yes)', min: 0, max: 1, default: 1, normal: 0, elevated: 1 },
+      { name: 'glucose', label: 'Blood Glucose Level', unit: 'mg/dL', min: 50, max: 300, default: 145, normal: 95, elevated: 190 },
+      { name: 'hba1c', label: 'HbA1c Level', unit: '%', min: 3, max: 15, default: 6.8, normal: 5.2, elevated: 8.0 },
+      { name: 'bmi', label: 'Body Mass Index (BMI)', unit: 'kg/m²', min: 10, max: 60, default: 29.5, normal: 22.0, elevated: 35.0 },
     ]
   }
 };

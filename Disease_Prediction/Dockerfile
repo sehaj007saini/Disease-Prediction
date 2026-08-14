@@ -14,6 +14,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files and ML models
 COPY . .
 
+# Generate/train all disease models inside image
+RUN python train_models.py
+
 EXPOSE 5000
 
 CMD ["uvicorn", "ml_api:app", "--host", "0.0.0.0", "--port", "5000"]
