@@ -1,6 +1,8 @@
 package com.disease.prediction.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 public class PredictionResponseDto {
 
@@ -13,6 +15,8 @@ public class PredictionResponseDto {
     private String riskLevel;
     private String recommendations;
     private LocalDateTime predictionDate;
+    private List<Map<String, Object>> riskFactors;
+    private List<Map<String, Object>> featureAttributions;
 
     public PredictionResponseDto() {
     }
@@ -102,5 +106,21 @@ public class PredictionResponseDto {
 
     public void setPredictionDate(LocalDateTime predictionDate) {
         this.predictionDate = predictionDate;
+    }
+
+    public List<Map<String, Object>> getRiskFactors() {
+        return riskFactors;
+    }
+
+    public void setRiskFactors(List<Map<String, Object>> riskFactors) {
+        this.riskFactors = riskFactors;
+    }
+
+    public List<Map<String, Object>> getFeatureAttributions() {
+        return featureAttributions;
+    }
+
+    public void setFeatureAttributions(List<Map<String, Object>> featureAttributions) {
+        this.featureAttributions = featureAttributions;
     }
 }

@@ -72,6 +72,24 @@ def train_and_save_models():
     joblib.dump(clf_kidney, os.path.join(BASE_DIR, "kidney_disease_model.pkl"))
     print("Saved kidney_disease_model.pkl")
 
+    # 5. Train Cerebrovascular / Stroke Risk Model (Clinical heuristic: Age, Hypertension, Heart Disease, Glucose, Smoking, BMI)
+    print("Training Stroke Risk model...")
+    stroke_risk = (
+        (df["age"] > 60).astype(int) * 2 +
+        (df["hypertension"] == 1).astype(int) * 2 +
+        (df["heart_disease"] == 1).astype(int) * 2 +
+        (df["blood_glucose_level"] > 150).astype(int) * 2 +
+        (df["bmi"] > 30).astype(int) +
+        (df["smoking_encoded"] != 0).astype(int)
+    )
+    y_stroke = (stroke_risk >= 5).astype(int)
+
+    X_stroke = df[features]
+    clf_stroke = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=12)
+    clf_stroke.fit(X_stroke, y_stroke)
+    joblib.dump(clf_stroke, os.path.join(BASE_DIR, "stroke_model.pkl"))
+    print("Saved stroke_model.pkl")
+
     print("All models successfully trained and serialized!")
 
 if __name__ == "__main__":

@@ -73,7 +73,26 @@ public class PredictionServiceImpl implements PredictionService {
         PredictionRecord saved = predictionRecordRepository.save(record);
 
         // 6. Return Response DTO
-        return mapToResponseDto(saved);
+        PredictionResponseDto responseDto = mapToResponseDto(saved);
+        responseDto.setRiskFactors(mlResponse.getRiskFactors());
+        responseDto.setFeatureAttributions(mlResponse.getFeatureAttributions());
+        return responseDto;
+    }
+
+    @Override
+    public MultiDiseaseResponseDto processMultiDiseasePrediction(MultiDiseaseRequestDto requestDto) {
+        return mlInferenceService.predictMultiDisease(requestDto);
+    }
+
+    @Override
+    public CounterfactualResponseDto simulateCounterfactualRisk(CounterfactualRequestDto requestDto) {
+        return mlInferenceService.simulateCounterfactual(requestDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GlobalXaiDto getGlobalXaiMetrics() {
+        return mlInferenceService.getGlobalXai();
     }
 
     @Override

@@ -64,4 +64,25 @@ public class PredictionController {
         MlServiceStatusDto status = predictionService.getMlServiceStatus();
         return ResponseEntity.ok(status);
     }
+
+    @PostMapping("/multi-disease")
+    @Operation(summary = "Execute 5-disease comprehensive screening", description = "Evaluates patient features across all 5 disease models simultaneously.")
+    public ResponseEntity<MultiDiseaseResponseDto> createMultiDiseasePrediction(@RequestBody MultiDiseaseRequestDto requestDto) {
+        MultiDiseaseResponseDto response = predictionService.processMultiDiseasePrediction(requestDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/simulate")
+    @Operation(summary = "Execute what-if counterfactual simulation", description = "Simulates baseline vs scenario parameters to calculate risk reduction deltas.")
+    public ResponseEntity<CounterfactualResponseDto> simulateCounterfactual(@RequestBody CounterfactualRequestDto requestDto) {
+        CounterfactualResponseDto response = predictionService.simulateCounterfactualRisk(requestDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/explain/global")
+    @Operation(summary = "Get global XAI model metrics and feature importance", description = "Returns accuracy, ROC-AUC, F1, sensitivity, specificity, and global feature importance rankings across all models.")
+    public ResponseEntity<GlobalXaiDto> getGlobalXai() {
+        GlobalXaiDto xai = predictionService.getGlobalXaiMetrics();
+        return ResponseEntity.ok(xai);
+    }
 }

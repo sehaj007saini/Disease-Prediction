@@ -1,10 +1,14 @@
 package com.disease.prediction.controller;
 
+import com.disease.prediction.config.JwtAuthenticationEntryPoint;
+import com.disease.prediction.config.JwtTokenProvider;
 import com.disease.prediction.dto.*;
+import com.disease.prediction.service.CustomUserDetailsService;
 import com.disease.prediction.service.PredictionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -19,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PredictionController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class PredictionControllerTest {
 
     @Autowired
@@ -26,6 +31,15 @@ public class PredictionControllerTest {
 
     @MockBean
     private PredictionService predictionService;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
+
+    @MockBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Autowired
     private ObjectMapper objectMapper;

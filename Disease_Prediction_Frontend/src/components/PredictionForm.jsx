@@ -44,7 +44,7 @@ const DISEASE_PRESETS = {
   },
   kidney_disease: {
     title: 'Chronic Kidney Disease Assessment',
-    icon: Brain,
+    icon: Activity,
     color: 'text-purple-600',
     fields: [
       { name: 'age', label: 'Patient Age', unit: 'years', min: 1, max: 120, default: 60, normal: 40, elevated: 72 },
@@ -52,6 +52,18 @@ const DISEASE_PRESETS = {
       { name: 'glucose', label: 'Blood Glucose Level', unit: 'mg/dL', min: 50, max: 300, default: 145, normal: 95, elevated: 190 },
       { name: 'hba1c', label: 'HbA1c Level', unit: '%', min: 3, max: 15, default: 6.8, normal: 5.2, elevated: 8.0 },
       { name: 'bmi', label: 'Body Mass Index (BMI)', unit: 'kg/m²', min: 10, max: 60, default: 29.5, normal: 22.0, elevated: 35.0 },
+    ]
+  },
+  stroke: {
+    title: 'Stroke & Cerebrovascular Risk',
+    icon: Brain,
+    color: 'text-amber-600',
+    fields: [
+      { name: 'age', label: 'Patient Age', unit: 'years', min: 1, max: 120, default: 62, normal: 35, elevated: 70 },
+      { name: 'hypertension', label: 'Hypertension History', unit: '0 (No) / 1 (Yes)', min: 0, max: 1, default: 1, normal: 0, elevated: 1 },
+      { name: 'heart_disease', label: 'Heart Disease History', unit: '0 (No) / 1 (Yes)', min: 0, max: 1, default: 0, normal: 0, elevated: 1 },
+      { name: 'glucose', label: 'Blood Glucose Level', unit: 'mg/dL', min: 50, max: 300, default: 155, normal: 95, elevated: 195 },
+      { name: 'bmi', label: 'Body Mass Index (BMI)', unit: 'kg/m²', min: 10, max: 60, default: 30.5, normal: 22.0, elevated: 35.0 },
     ]
   }
 };
@@ -175,7 +187,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
     <div className="space-y-6">
       
       {/* Target Category Tabs */}
-      <div className="flex flex-wrap gap-2.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {Object.entries(DISEASE_PRESETS).map(([key, config]) => {
           const Icon = config.icon;
           const isActive = target === key;
@@ -184,14 +196,16 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
               key={key}
               type="button"
               onClick={() => setTarget(key)}
-              className={`flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all border ${
+              className={`flex items-center space-x-2.5 rounded-2xl px-4 py-3 text-xs font-bold transition-all duration-200 border ${
                 isActive
-                  ? 'bg-[#2563EB] text-white border-blue-600 shadow-sm'
-                  : 'bg-white text-[#64748B] border-[#E2E8F0] hover:bg-slate-50 hover:text-[#0F172A]'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500 shadow-lg shadow-blue-500/25 scale-[1.02]'
+                  : 'glass-card text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400'
               }`}
             >
-              <Icon className={`h-4 w-4 ${isActive ? 'text-white' : config.color}`} />
-              <span>{config.title}</span>
+              <div className={`p-1.5 rounded-xl ${isActive ? 'bg-white/20 text-white' : 'bg-blue-500/10'}`}>
+                <Icon className={`h-4 w-4 ${isActive ? 'text-white' : config.color}`} />
+              </div>
+              <span className="truncate">{config.title.split(' ')[0]} Risk</span>
             </button>
           );
         })}

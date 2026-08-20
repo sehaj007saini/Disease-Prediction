@@ -11,4 +11,7 @@ public interface PredictionService {
     PredictionResponseDto getPredictionById(Long predictionId);
     PredictionAnalyticsDto getPredictionAnalytics();
     MlServiceStatusDto getMlServiceStatus();
+    MultiDiseaseResponseDto processMultiDiseasePrediction(MultiDiseaseRequestDto requestDto);
+    CounterfactualResponseDto simulateCounterfactualRisk(CounterfactualRequestDto requestDto);
+    GlobalXaiDto getGlobalXaiMetrics();
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Users, Search, UserPlus, Edit2, Trash2, History, AlertCircle, RefreshCw, X, Check, Calendar, Mail, Phone, Stethoscope, ChevronRight, User 
+  Users, Search, UserPlus, Edit2, Trash2, History, AlertCircle, RefreshCw, X, Check, Calendar, Mail, Phone, Stethoscope, ChevronRight, User, Download 
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -40,6 +40,27 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
   useEffect(() => {
     loadPatients();
   }, []);
+
+  const exportToCSV = () => {
+    const headers = ['Patient ID', 'Name', 'Age', 'Gender', 'Email', 'Phone', 'Created Date'];
+    const rows = patients.map(p => [
+      p.id,
+      `"${p.name || ''}"`,
+      p.age,
+      p.gender,
+      `"${p.email || ''}"`,
+      `"${p.phone || ''}"`,
+      p.createdAt || ''
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Patient_Registry_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleOpenCreate = () => {
     setEditingPatient(null);
@@ -128,13 +149,23 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
           </div>
         </div>
 
-        <button
-          onClick={handleOpenCreate}
-          className="flex items-center space-x-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
-        >
-          <UserPlus className="h-4 w-4" />
-          <span>Register New Patient</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={exportToCSV}
+            className="flex items-center space-x-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#0F172A] dark:text-slate-200 border border-[#E2E8F0] dark:border-slate-700 px-4 py-2.5 text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+            title="Export patient records to CSV file"
+          >
+            <Download className="h-4 w-4 text-[#2563EB]" />
+            <span>Export CSV</span>
+          </button>
+          <button
+            onClick={handleOpenCreate}
+            className="flex items-center space-x-2 rounded-xl bg-[#2563EB] px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+          >
+            <UserPlus className="h-4 w-4" />
+            <span>Register New Patient</span>
+          </button>
+        </div>
       </div>
 
       {/* Search Filter bar */}

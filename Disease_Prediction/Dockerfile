@@ -19,4 +19,4 @@ RUN python train_models.py
 
 EXPOSE 5000
 
-CMD ["uvicorn", "ml_api:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["sh", "-c", "uvicorn ml_api:app --host 0.0.0.0 --port ${PORT:-5000}"]

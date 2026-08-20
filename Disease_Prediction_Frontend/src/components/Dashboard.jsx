@@ -34,41 +34,42 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
   const DISEASE_LAUNCHERS = [
     { key: 'diabetes', title: 'Diabetes Screening', subtitle: 'Glucose & Insulin Analysis', icon: Droplet, color: isDark ? 'text-sky-400' : 'text-blue-600', bg: isDark ? 'bg-sky-950/40 border-sky-800/40' : 'bg-blue-50 border-blue-200' },
     { key: 'heart_disease', title: 'Cardiovascular Risk', subtitle: 'ECG & Lipid Metrics', icon: HeartPulse, color: isDark ? 'text-rose-400' : 'text-rose-600', bg: isDark ? 'bg-rose-950/40 border-rose-800/40' : 'bg-rose-50 border-rose-200' },
-    { key: 'parkinsons', title: "Parkinson's Vocal Metrics", subtitle: 'Vocal Frequency & Jitter', icon: Brain, color: isDark ? 'text-purple-400' : 'text-purple-600', bg: isDark ? 'bg-purple-950/40 border-purple-800/40' : 'bg-purple-50 border-purple-200' },
-    { key: 'general', title: 'General Health Panel', subtitle: 'Hemoglobin & WBC Count', icon: Activity, color: isDark ? 'text-emerald-400' : 'text-emerald-600', bg: isDark ? 'bg-emerald-950/40 border-emerald-800/40' : 'bg-emerald-50 border-emerald-200' },
+    { key: 'stroke', title: 'Stroke Risk Panel', subtitle: 'Neurovascular Assessment', icon: Brain, color: isDark ? 'text-amber-400' : 'text-amber-600', bg: isDark ? 'bg-amber-950/40 border-amber-800/40' : 'bg-amber-50 border-amber-200' },
+    { key: 'kidney_disease', title: 'Kidney / Renal Panel', subtitle: 'eGFR & Metabolic Indicators', icon: Activity, color: isDark ? 'text-emerald-400' : 'text-emerald-600', bg: isDark ? 'bg-emerald-950/40 border-emerald-800/40' : 'bg-emerald-50 border-emerald-200' },
   ];
 
   return (
     <div className="space-y-6">
       
-      {/* Header Clinical Command Hero Banner (Subtle Gradient applied only here) */}
-      <div className={`rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border shadow-sm relative overflow-hidden transition-colors ${
+      {/* Header Clinical Command Hero Banner */}
+      <div className={`rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border shadow-xl relative overflow-hidden transition-all duration-300 ${
         isDark 
-          ? 'bg-gradient-to-br from-slate-900 via-slate-900/90 to-blue-950/30 border-slate-800' 
-          : 'bg-gradient-to-br from-blue-50/90 via-white to-emerald-50/40 border-[#E2E8F0]'
+          ? 'bg-gradient-to-br from-slate-900 via-slate-900/95 to-blue-950/40 border-slate-800/80 shadow-blue-950/20' 
+          : 'bg-gradient-to-br from-blue-50/90 via-white to-indigo-50/60 border-blue-100 shadow-blue-500/5'
       }`}>
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div className="space-y-2.5 max-w-3xl relative z-10">
-          <div className={`inline-flex items-center space-x-2 rounded-lg px-3 py-1 text-xs font-mono font-semibold border ${
-            isDark ? 'bg-blue-950/80 text-blue-400 border-blue-800/60' : 'bg-blue-100/80 text-[#2563EB] border-blue-200'
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-slow"></div>
+        <div className="absolute bottom-0 left-1/3 -mb-12 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="space-y-3 max-w-3xl relative z-10">
+          <div className={`inline-flex items-center space-x-2 rounded-full px-3.5 py-1 text-xs font-mono font-semibold border ${
+            isDark ? 'bg-blue-950/80 text-blue-300 border-blue-800/60' : 'bg-blue-50 text-blue-700 border-blue-200'
           }`}>
-            <Stethoscope className="h-3.5 w-3.5" />
-            <span>Clinical Workstation Operational</span>
+            <Stethoscope className="h-3.5 w-3.5 text-blue-500" />
+            <span>MediPulse AI Intelligence Engine v2.4</span>
           </div>
           <h1 className={`text-2xl sm:text-3xl font-extrabold tracking-tight font-heading ${
-            isDark ? 'text-white' : 'text-[#0F172A]'
+            isDark ? 'text-white' : 'text-slate-900'
           }`}>
-            Diagnostic Intelligence Dashboard
+            Diagnostic Intelligence & Risk Triage Dashboard
           </h1>
-          <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
-            Multi-target clinical risk classification system powered by Spring Boot REST API microservices, PostgreSQL persistence layer, and Scikit-Learn machine learning pipelines.
+          <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+            Multi-condition clinical risk prediction engine powered by Spring Boot REST APIs, PostgreSQL persistence, and Scikit-Learn Random Forest / Gradient Boosting inference pipelines.
           </p>
         </div>
 
         <button
           onClick={() => onNewPrediction('diabetes')}
-          className="relative z-10 flex items-center space-x-2 rounded-xl bg-[#2563EB] px-5 py-3 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap"
+          className="relative z-10 flex items-center space-x-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-xs font-bold text-white shadow-lg hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] transition-all duration-200 hover:shadow-blue-500/25 whitespace-nowrap"
         >
           <PlusCircle className="h-4 w-4" />
           <span>New Diagnostic Test</span>
@@ -78,56 +79,56 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
       {/* 4 Visually Prominent Analytics Metric Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         
-        <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between hover:-translate-y-0.5 transition-all">
+        <div className="glass-card p-6 flex items-center justify-between group">
           <div>
-            <p className="text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Total Screenings</p>
-            <h3 className="text-3xl font-extrabold text-[#0F172A] dark:text-white mt-1 font-mono">{analytics.totalPredictions}</h3>
-            <span className="text-[11px] text-[#10B981] font-semibold flex items-center mt-1.5">
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Screenings</p>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1 font-mono">{analytics.totalPredictions}</h3>
+            <span className="text-[11px] text-emerald-500 font-semibold flex items-center mt-1.5">
               <TrendingUp className="h-3.5 w-3.5 mr-1" /> +14.2% this week
             </span>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-800/50 text-[#2563EB] dark:text-blue-400 shadow-xs">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-500 group-hover:scale-110 transition-transform">
             <Activity className="h-6 w-6" />
           </div>
         </div>
 
-        <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between hover:-translate-y-0.5 transition-all">
+        <div className="glass-card p-6 flex items-center justify-between group">
           <div>
-            <p className="text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Registered Patients</p>
-            <h3 className="text-3xl font-extrabold text-[#0F172A] dark:text-white mt-1 font-mono">{analytics.totalPatients}</h3>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Registered Patients</p>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1 font-mono">{analytics.totalPatients}</h3>
             <button 
               onClick={onSelectPatient}
-              className="text-[11px] text-[#2563EB] dark:text-blue-400 font-semibold hover:underline flex items-center mt-1.5"
+              className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center mt-1.5"
             >
               <span>View Patient Profiles</span>
               <ArrowUpRight className="h-3.5 w-3.5 ml-0.5" />
             </button>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/50 text-indigo-600 dark:text-indigo-400 shadow-xs">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 group-hover:scale-110 transition-transform">
             <Users className="h-6 w-6" />
           </div>
         </div>
 
-        <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between hover:-translate-y-0.5 transition-all">
+        <div className="glass-card p-6 flex items-center justify-between group">
           <div>
-            <p className="text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Elevated Risk Triage</p>
-            <h3 className="text-3xl font-extrabold text-amber-600 dark:text-amber-400 mt-1 font-mono">{analytics.highRiskCount}</h3>
-            <span className="text-[11px] text-[#64748B] dark:text-slate-400 font-medium mt-1.5 block">Requires Follow-up</span>
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Elevated Risk Triage</p>
+            <h3 className="text-3xl font-extrabold text-amber-500 mt-1 font-mono">{analytics.highRiskCount}</h3>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1.5 block">Requires Follow-up</span>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-100 dark:border-amber-800/50 text-amber-600 dark:text-amber-400 shadow-xs">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 group-hover:scale-110 transition-transform">
             <AlertTriangle className="h-6 w-6" />
           </div>
         </div>
 
-        <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between hover:-translate-y-0.5 transition-all">
+        <div className="glass-card p-6 flex items-center justify-between group">
           <div>
-            <p className="text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Model Precision</p>
-            <h3 className="text-3xl font-extrabold text-[#10B981] dark:text-emerald-400 mt-1 font-mono">
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Model Precision</p>
+            <h3 className="text-3xl font-extrabold text-emerald-500 mt-1 font-mono">
               {(analytics.avgConfidenceScore * 100).toFixed(1)}%
             </h3>
-            <span className="text-[11px] text-[#10B981] dark:text-emerald-400 font-medium mt-1.5 block font-mono">Validated ML Ensemble</span>
+            <span className="text-[11px] text-emerald-500 font-medium mt-1.5 block font-mono">Validated ML Ensemble</span>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-100 dark:border-emerald-800/50 text-[#10B981] dark:text-emerald-400 shadow-xs">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 group-hover:scale-110 transition-transform">
             <ShieldCheck className="h-6 w-6" />
           </div>
         </div>

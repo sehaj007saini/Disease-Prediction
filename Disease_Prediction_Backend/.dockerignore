@@ -1,0 +1,7 @@
+target
+.agents
+.git
+.gitignore
+.env
+.env.*
+README.md

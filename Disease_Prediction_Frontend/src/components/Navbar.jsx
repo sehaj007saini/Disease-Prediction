@@ -1,13 +1,19 @@
 import React from 'react';
-import { Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon } from 'lucide-react';
+import { Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatus, theme, toggleTheme }) {
+  const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const navItems = [
-    { id: 'dashboard', label: 'Analytics Dashboard', icon: LayoutDashboard },
-    { id: 'predict', label: 'Run Diagnostic Test', icon: Stethoscope },
+    { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
+    { id: 'predict', label: 'Single Risk Predictor', icon: Stethoscope },
+    { id: 'multi', label: '5-Disease Screen', icon: Sparkles },
+    { id: 'simulate', label: 'What-If Studio', icon: Sliders },
+    { id: 'governance', label: 'XAI & Governance', icon: Cpu },
     { id: 'patients', label: 'Patient Registry', icon: Users },
     { id: 'batch', label: 'Batch Processing', icon: Layers },
-    { id: 'system', label: 'Infrastructure Health', icon: Server },
+    { id: 'copilot', label: 'MedAssist AI', icon: Bot },
+    { id: 'system', label: 'System Health', icon: Server },
   ];
 
   const isDark = theme === 'dark';
@@ -126,6 +132,44 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
             <ShieldCheck className="h-3 w-3 text-[#10B981]" />
             <span>HIPAA</span>
           </div>
+
+          {/* User Auth Profile Badge & Controls */}
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-2 pl-1 border-l border-slate-700/50">
+              <div className={`flex items-center space-x-2 rounded-xl px-2.5 py-1 border text-xs ${
+                isDark ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-slate-100 border-slate-200 text-slate-800'
+              }`}>
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-[10px]">
+                  {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="hidden sm:block text-left">
+                  <div className="text-[11px] font-bold leading-tight truncate max-w-[110px]">
+                    {user?.fullName || user?.username}
+                  </div>
+                  <div className="text-[9px] font-mono text-blue-400 uppercase tracking-tighter">
+                    {user?.role ? user.role.replace('ROLE_', '') : 'USER'}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={logout}
+                className={`p-1.5 rounded-xl border text-xs font-semibold transition-all ${
+                  isDark ? 'bg-rose-950/40 border-rose-900/50 text-rose-400 hover:bg-rose-900/60' : 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100 shadow-xs'
+                }`}
+                title="Sign Out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => openAuthModal('login')}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold shadow-xs hover:from-blue-700 hover:to-indigo-700 transition-all"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              <span>Sign In</span>
+            </button>
+          )}
         </div>
       </div>
 

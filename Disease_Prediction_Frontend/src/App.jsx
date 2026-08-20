@@ -6,9 +6,15 @@ import PredictionResultModal from './components/PredictionResultModal';
 import PatientRegistry from './components/PatientRegistry';
 import BatchPrediction from './components/BatchPrediction';
 import SystemHealth from './components/SystemHealth';
+import MultiDiseaseScreen from './components/MultiDiseaseScreen';
+import CounterfactualSimulation from './components/CounterfactualSimulation';
+import ModelGovernance from './components/ModelGovernance';
+import MedAssistCopilot from './components/MedAssistCopilot';
+import AuthModal from './components/AuthModal';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { api } from './services/api';
 
-export default function App() {
+function MainApp() {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('mediPulseTheme') || 'light';
   });
@@ -18,6 +24,8 @@ export default function App() {
   const [backendStatus, setBackendStatus] = useState(false);
   const [initialPredictionTarget, setInitialPredictionTarget] = useState('diabetes');
   const [activePredictionResult, setActivePredictionResult] = useState(null);
+
+  const { isAuthModalOpen, closeAuthModal } = useAuth();
 
   useEffect(() => {
     localStorage.setItem('mediPulseTheme', theme);
@@ -97,6 +105,18 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'multi' && (
+          <MultiDiseaseScreen />
+        )}
+
+        {activeTab === 'simulate' && (
+          <CounterfactualSimulation />
+        )}
+
+        {activeTab === 'governance' && (
+          <ModelGovernance />
+        )}
+
         {activeTab === 'patients' && (
           <PatientRegistry 
             onRunPredictionForPatient={(patientId) => {
@@ -109,6 +129,10 @@ export default function App() {
           <BatchPrediction 
             onSelectPrediction={(result) => setActivePredictionResult(result)}
           />
+        )}
+
+        {activeTab === 'copilot' && (
+          <MedAssistCopilot />
         )}
 
         {activeTab === 'system' && (
@@ -128,6 +152,13 @@ export default function App() {
         />
       )}
 
+      {/* Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={closeAuthModal}
+        isDark={theme === 'dark'}
+      />
+
       {/* Enterprise SaaS Healthcare Footer */}
       <footer className={`border-t py-5 text-xs transition-colors duration-200 mt-auto ${
         theme === 'dark' ? 'border-[#1E293B] bg-[#0F172A]/80 text-[#94A3B8]' : 'border-[#E2E8F0] bg-white text-[#64748B] shadow-xs'
@@ -135,10 +166,10 @@ export default function App() {
         <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
             <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
-              MediPulse Clinical AI Workspace
+              MediPulse Multi-Disease Diagnostic Platform & XAI Suite
             </span>
             <span className="text-[#94A3B8]">•</span>
-            <span>Spring Boot & Scikit-Learn Microservice Architecture</span>
+            <span>Final Year Major Engineering Capstone Project</span>
           </div>
           <div className="flex items-center space-x-4 text-[11px] font-mono">
             <span>REST API: <strong className="text-[#2563EB] font-medium">Port 8080</strong></span>
@@ -149,5 +180,13 @@ export default function App() {
       </footer>
 
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
   );
 }
