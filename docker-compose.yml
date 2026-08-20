@@ -45,7 +45,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-disease_prediction_db}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      ML_SERVICE_URL: http://ml-service:5000/predict
+      ML_SERVICE_URL: ${ML_SERVICE_URL:-http://ml-service:5000/predict}
+      JWT_SECRET: ${JWT_SECRET:-9a4f2c8d7e6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:80,http://localhost}
     depends_on:
       db:
         condition: service_healthy

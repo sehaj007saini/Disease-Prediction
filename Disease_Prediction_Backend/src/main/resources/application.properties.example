@@ -22,3 +22,9 @@ ml.service.timeout.ms=5000
 
 # Jackson JSON Settings
 spring.jackson.serialization.write-dates-as-timestamps=false
+
+# JWT Authentication & Security Settings
+app.jwt.secret=${JWT_SECRET:your_256_bit_secure_random_key_here}
+app.jwt.expiration-ms=${JWT_EXPIRATION_MS:86400000}
+app.cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:80,https://yourdomain.com}
+
