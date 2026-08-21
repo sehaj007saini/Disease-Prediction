@@ -36,9 +36,11 @@ public class DatabaseConfig {
 
         if (dbUrl != null && !dbUrl.trim().isEmpty()) {
             dbUrl = dbUrl.trim();
-            if (dbUrl.startsWith("postgres://") || dbUrl.startsWith("postgresql://")) {
+            String urlToParse = dbUrl.startsWith("jdbc:") ? dbUrl.substring(5) : dbUrl;
+
+            if (urlToParse.startsWith("postgres://") || urlToParse.startsWith("postgresql://")) {
                 try {
-                    String tempUrl = dbUrl.replaceFirst("^postgres(ql)?://", "http://");
+                    String tempUrl = urlToParse.replaceFirst("^postgres(ql)?://", "http://");
                     URI uri = new URI(tempUrl);
 
                     String host = uri.getHost();
@@ -72,7 +74,7 @@ public class DatabaseConfig {
 
                     String queryString = query.isEmpty() ? "" : "?" + query;
                     dbUrl = "jdbc:postgresql://" + host + ":" + port + path + queryString;
-                    System.out.println("DatabaseConfig: Connecting to host=" + host + ", db=" + path + ", user=" + username);
+                    System.out.println("DatabaseConfig: Successfully parsed cloud database connection to host=" + host + ", db=" + path + ", user=" + username);
                 } catch (Exception e) {
                     System.err.println("DatabaseConfig: Error parsing database URI: " + e.getMessage());
                     if (!dbUrl.startsWith("jdbc:")) {
