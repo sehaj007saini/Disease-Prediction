@@ -15,13 +15,13 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 public class DatabaseConfig {
 
-    @Value("${SPRING_DATASOURCE_URL:${DATABASE_URL:${INTERNAL_DATABASE_URL:}}}")
+    @Value("${SPRING_DATASOURCE_URL:${DATABASE_URL:${Database_url:${Database_Url:${INTERNAL_DATABASE_URL:}}}}}")
     private String rawUrl;
 
-    @Value("${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:postgres}}")
+    @Value("${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${Database_username:${Database_user:postgres}}}}")
     private String defaultUsername;
 
-    @Value("${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:postgres}}")
+    @Value("${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${Database_password:${Database_pass:postgres}}}}")
     private String defaultPassword;
 
     @Bean
