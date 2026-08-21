@@ -1,7 +1,5 @@
 package com.disease.prediction.config;
 
-import org.slf.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -12,8 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DatabaseEnvironmentPostProcessor implements EnvironmentPostProcessor {
-
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseEnvironmentPostProcessor.class);
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
@@ -47,9 +43,9 @@ public class DatabaseEnvironmentPostProcessor implements EnvironmentPostProcesso
 
                     String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + path + query;
                     map.put("spring.datasource.url", jdbcUrl);
-                    logger.info("DatabaseEnvironmentPostProcessor: Converted PostgreSQL URI to JDBC URL: {}", jdbcUrl);
+                    System.out.println("DatabaseEnvironmentPostProcessor: Converted PostgreSQL URI to JDBC URL: " + jdbcUrl);
                 } catch (Exception e) {
-                    logger.warn("DatabaseEnvironmentPostProcessor: Error parsing database URI: {}", e.getMessage());
+                    System.err.println("DatabaseEnvironmentPostProcessor: Error parsing database URI: " + e.getMessage());
                     if (!rawUrl.startsWith("jdbc:")) {
                         map.put("spring.datasource.url", "jdbc:" + rawUrl);
                     } else {
