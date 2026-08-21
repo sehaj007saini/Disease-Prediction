@@ -47,8 +47,16 @@ public class DatabaseConfig {
 
                     if (uri.getUserInfo() != null && uri.getUserInfo().contains(":")) {
                         String[] userInfo = uri.getUserInfo().split(":", 2);
-                        username = URLDecoder.decode(userInfo[0], StandardCharsets.UTF_8);
-                        password = URLDecoder.decode(userInfo[1], StandardCharsets.UTF_8);
+                        try {
+                            username = URLDecoder.decode(userInfo[0], StandardCharsets.UTF_8);
+                        } catch (Exception ignored) {
+                            username = userInfo[0];
+                        }
+                        try {
+                            password = URLDecoder.decode(userInfo[1], StandardCharsets.UTF_8);
+                        } catch (Exception ignored) {
+                            password = userInfo[1];
+                        }
                     }
 
                     if (query == null || query.isEmpty()) {
@@ -63,7 +71,7 @@ public class DatabaseConfig {
 
                     String queryString = query.isEmpty() ? "" : "?" + query;
                     dbUrl = "jdbc:postgresql://" + host + ":" + port + path + queryString;
-                    System.out.println("DatabaseConfig: Connected to PostgreSQL host=" + host + ", db=" + path + ", user=" + username);
+                    System.out.println("DatabaseConfig: Connecting to host=" + host + ", db=" + path + ", user=" + username);
                 } catch (Exception e) {
                     System.err.println("DatabaseConfig: Error parsing database URI: " + e.getMessage());
                     if (!dbUrl.startsWith("jdbc:")) {
