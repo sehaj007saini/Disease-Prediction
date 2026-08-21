@@ -1,5 +1,6 @@
 package com.disease.prediction.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.annotation.Bean;
@@ -96,6 +97,16 @@ public class DatabaseConfig {
     @Bean
     @Primary
     public DataSource dataSource(DataSourceProperties properties) {
-        return properties.initializeDataSourceBuilder().build();
+        HikariDataSource dataSource = properties.initializeDataSourceBuilder()
+                .type(HikariDataSource.class)
+                .build();
+
+        dataSource.setMaximumPoolSize(5);
+        dataSource.setMinimumIdle(1);
+        dataSource.setIdleTimeout(30000);
+        dataSource.setMaxLifetime(600000);
+        dataSource.setConnectionTimeout(20000);
+
+        return dataSource;
     }
 }
