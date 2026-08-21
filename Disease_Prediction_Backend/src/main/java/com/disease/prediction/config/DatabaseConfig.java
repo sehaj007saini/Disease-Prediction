@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 public class DatabaseConfig {
@@ -41,16 +43,29 @@ public class DatabaseConfig {
                     String host = uri.getHost();
                     int port = uri.getPort() > 0 ? uri.getPort() : 5432;
                     String path = uri.getPath() != null ? uri.getPath() : "";
-                    String query = (uri.getQuery() != null && !uri.getQuery().isEmpty()) ? "?" + uri.getQuery() : "";
+                    String query = uri.getQuery();
 
                     if (uri.getUserInfo() != null && uri.getUserInfo().contains(":")) {
                         String[] userInfo = uri.getUserInfo().split(":", 2);
-                        username = userInfo[0];
-                        password = userInfo[1];
+                        username = URLDecoder.decode(userInfo[0], StandardCharsets.UTF_8);
+                        password = URLDecoder.decode(userInfo[1], StandardCharsets.UTF_8);
                     }
 
-                    dbUrl = "jdbc:postgresql://" + host + ":" + port + path + query;
+                    if (query == null || query.isEmpty()) {
+                        if (host != null && !host.equals("localhost") && !host.equals("127.0.0.1")) {
+                            query = "sslmode=require";
+                        } else {
+                            query = "";
+                        }
+                    } else if (!query.contains("sslmode")) {
+                        query = query + "&sslmode=require";
+                    }
+
+                    String queryString = query.isEmpty() ? "" : "?" + query;
+                    dbUrl = "jdbc:postgresql://" + host + ":" + port + path + queryString;
+                    System.out.println("DatabaseConfig: Connected to PostgreSQL host=" + host + ", db=" + path + ", user=" + username);
                 } catch (Exception e) {
+                    System.err.println("DatabaseConfig: Error parsing database URI: " + e.getMessage());
                     if (!dbUrl.startsWith("jdbc:")) {
                         dbUrl = "jdbc:" + dbUrl;
                     }
@@ -60,6 +75,7 @@ public class DatabaseConfig {
             }
         } else {
             dbUrl = "jdbc:postgresql://localhost:5432/disease_prediction_db";
+            System.out.println("DatabaseConfig: Falling back to local PostgreSQL connection.");
         }
 
         properties.setUrl(dbUrl);
