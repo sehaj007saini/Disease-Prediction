@@ -68,8 +68,8 @@ The project root includes a `render.yaml` blueprint.
 
 ### 1. Database Connection Failures
 - Render internal database URLs format: `postgres://username:password@dpg-xxxx-a/dbname`.
-- Spring Boot automatically transforms `postgres://` or `postgresql://` into `jdbc:postgresql://` via `DatabaseConfig.java`.
-- `DatabaseConfig.java` has `initializationFailTimeout=0` configured so that if the database is waking up, Spring Boot retries connections without crashing during startup.
+- Spring Boot automatically intercepts and transforms `postgres://` or `postgresql://` into `jdbc:postgresql://` before application startup using `DatabaseEnvironmentPostProcessor.java`.
+- `DatabaseConfig.java` has `initializationFailTimeout=0` configured so that if the database is waking up on Render free tier, Spring Boot retries connections without crashing during startup.
 
 ### 2. Out-Of-Memory (OOM / Exit Code 137)
 - Free tier containers have 512MB RAM.
