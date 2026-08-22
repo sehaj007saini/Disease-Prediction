@@ -41,6 +41,9 @@ services:
     rootDir: Disease_Prediction_Frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://disease-backend.onrender.com/api/v1
     routes:
       - type: rewrite
         source: /*

@@ -49,6 +49,28 @@ If you prefer deploying without Docker:
 
 ---
 
+## Deploying the React Frontend Service (Static Site)
+
+1. Go to your [Render Dashboard](https://dashboard.render.com).
+2. Click **New +** -> **Static Site**.
+3. Connect your GitHub repository.
+4. Configure parameters:
+   - **Name**: `disease-frontend`
+   - **Root Directory**: `Disease_Prediction_Frontend`
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+5. Add **Environment Variable**:
+   - `VITE_API_BASE_URL`: `https://your-backend-name.onrender.com/api/v1`  
+     *(Replace `your-backend-name.onrender.com` with your actual deployed Spring Boot Backend URL on Render)*
+6. In **Redirects / Rewrites** tab:
+   - Add Rewrite Rule:
+     - **Source**: `/*`
+     - **Destination**: `/index.html`
+     - **Action**: `Rewrite`
+7. Click **Create Static Site**.
+
+---
+
 ## Method 3: 1-Click Multi-Service Deployment using `render.yaml` Blueprint
 
 The project root includes a `render.yaml` blueprint.
