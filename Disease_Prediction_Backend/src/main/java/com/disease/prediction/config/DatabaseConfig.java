@@ -8,20 +8,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
 public class DatabaseConfig {
 
-    @Value("${SPRING_DATASOURCE_URL:${DATABASE_URL:${Database_url:${Database_Url:${INTERNAL_DATABASE_URL:}}}}}")
+    @Value("${SPRING_DATASOURCE_URL:${DATABASE_URL:${Database_url:${Database_Url:${INTERNAL_DATABASE_URL:${DATABASE_PRIVATE_URL:${DATABASE_PUBLIC_URL:${POSTGRES_URL:${POSTGRESQL_URL:${JDBC_DATABASE_URL:}}}}}}}}}}")
     private String rawUrl;
 
-    @Value("${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${Database_username:${Database_user:postgres}}}}")
+    @Value("${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${Database_username:${Database_user:${POSTGRES_USER:${POSTGRES_USERNAME:postgres}}}}}}")
     private String defaultUsername;
 
-    @Value("${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${Database_password:${Database_pass:postgres}}}}")
+    @Value("${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${Database_password:${Database_pass:${POSTGRES_PASSWORD:postgres}}}}}")
     private String defaultPassword;
 
     @Bean
@@ -40,43 +39,89 @@ public class DatabaseConfig {
 
             if (urlToParse.startsWith("postgres://") || urlToParse.startsWith("postgresql://")) {
                 try {
-                    String tempUrl = urlToParse.replaceFirst("^postgres(ql)?://", "http://");
-                    URI uri = new URI(tempUrl);
+                    String stringToParse = urlToParse.replaceFirst("^postgres(ql)?://", "");
 
-                    String host = uri.getHost();
-                    int port = uri.getPort() > 0 ? uri.getPort() : 5432;
-                    String path = uri.getPath() != null ? uri.getPath() : "";
-                    String query = uri.getQuery();
-
-                    if (uri.getUserInfo() != null && uri.getUserInfo().contains(":")) {
-                        String[] userInfo = uri.getUserInfo().split(":", 2);
-                        try {
-                            username = URLDecoder.decode(userInfo[0], StandardCharsets.UTF_8);
-                        } catch (Exception ignored) {
-                            username = userInfo[0];
-                        }
-                        try {
-                            password = URLDecoder.decode(userInfo[1], StandardCharsets.UTF_8);
-                        } catch (Exception ignored) {
-                            password = userInfo[1];
+                    int pathOrQueryStart = -1;
+                    for (int i = 0; i < stringToParse.length(); i++) {
+                        char c = stringToParse.charAt(i);
+                        if (c == '/' || c == '?') {
+                            pathOrQueryStart = i;
+                            break;
                         }
                     }
 
-                    if (query == null || query.isEmpty()) {
-                        if (host != null && !host.equals("localhost") && !host.equals("127.0.0.1")) {
-                            query = "sslmode=require";
+                    String authority;
+                    String pathAndQuery;
+                    if (pathOrQueryStart != -1) {
+                        authority = stringToParse.substring(0, pathOrQueryStart);
+                        pathAndQuery = stringToParse.substring(pathOrQueryStart);
+                    } else {
+                        authority = stringToParse;
+                        pathAndQuery = "";
+                    }
+
+                    int lastAt = authority.lastIndexOf('@');
+                    String hostAndPort;
+                    if (lastAt != -1) {
+                        String userInfo = authority.substring(0, lastAt);
+                        hostAndPort = authority.substring(lastAt + 1);
+
+                        int firstColon = userInfo.indexOf(':');
+                        if (firstColon != -1) {
+                            String rawUser = userInfo.substring(0, firstColon);
+                            String rawPass = userInfo.substring(firstColon + 1);
+                            try {
+                                username = URLDecoder.decode(rawUser, StandardCharsets.UTF_8);
+                            } catch (Exception ignored) {
+                                username = rawUser;
+                            }
+                            try {
+                                password = URLDecoder.decode(rawPass, StandardCharsets.UTF_8);
+                            } catch (Exception ignored) {
+                                password = rawPass;
+                            }
                         } else {
-                            query = "";
+                            try {
+                                username = URLDecoder.decode(userInfo, StandardCharsets.UTF_8);
+                            } catch (Exception ignored) {
+                                username = userInfo;
+                            }
                         }
-                    } else if (!query.contains("sslmode")) {
-                        query = query + "&sslmode=require";
+                    } else {
+                        hostAndPort = authority;
                     }
 
-                    String queryString = query.isEmpty() ? "" : "?" + query;
+                    String host;
+                    int port = 5432;
+                    int colonIdx = hostAndPort.indexOf(':');
+                    if (colonIdx != -1) {
+                        host = hostAndPort.substring(0, colonIdx);
+                        try {
+                            port = Integer.parseInt(hostAndPort.substring(colonIdx + 1));
+                        } catch (Exception ignored) {}
+                    } else {
+                        host = hostAndPort;
+                    }
+
+                    String path = "";
+                    String query = "";
+                    if (pathAndQuery.startsWith("/")) {
+                        int qIdx = pathAndQuery.indexOf('?');
+                        if (qIdx != -1) {
+                            path = pathAndQuery.substring(0, qIdx);
+                            query = pathAndQuery.substring(qIdx + 1);
+                        } else {
+                            path = pathAndQuery;
+                        }
+                    } else if (pathAndQuery.startsWith("?")) {
+                        query = pathAndQuery.substring(1);
+                    }
+
+                    String queryString = (query != null && !query.trim().isEmpty()) ? "?" + query.trim() : "";
                     dbUrl = "jdbc:postgresql://" + host + ":" + port + path + queryString;
-                    System.out.println("DatabaseConfig: Successfully parsed cloud database connection to host=" + host + ", db=" + path + ", user=" + username);
+                    System.out.println("DatabaseConfig: Cleanly parsed PostgreSQL cloud connection -> Host: " + host + ":" + port + ", Path: " + path + ", User: " + username);
                 } catch (Exception e) {
-                    System.err.println("DatabaseConfig: Error parsing database URI: " + e.getMessage());
+                    System.err.println("DatabaseConfig: Warning while parsing database URI, falling back to raw JDBC string: " + e.getMessage());
                     if (!dbUrl.startsWith("jdbc:")) {
                         dbUrl = "jdbc:" + dbUrl;
                     }
@@ -86,7 +131,7 @@ public class DatabaseConfig {
             }
         } else {
             dbUrl = "jdbc:postgresql://localhost:5432/disease_prediction_db";
-            System.out.println("DatabaseConfig: Falling back to local PostgreSQL connection.");
+            System.out.println("DatabaseConfig: No external DATABASE_URL found. Falling back to local PostgreSQL connection.");
         }
 
         properties.setUrl(dbUrl);
