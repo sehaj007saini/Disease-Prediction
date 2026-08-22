@@ -33,6 +33,18 @@ public class DatabaseConfig {
         String username = defaultUsername;
         String password = defaultPassword;
 
+        if (dbUrl == null || dbUrl.trim().isEmpty()) {
+            String[] envKeys = {"SPRING_DATASOURCE_URL", "DATABASE_URL", "Database_url", "Database_Url", "INTERNAL_DATABASE_URL", "DATABASE_PRIVATE_URL", "DATABASE_PUBLIC_URL", "POSTGRES_URL", "POSTGRESQL_URL", "JDBC_DATABASE_URL"};
+            for (String key : envKeys) {
+                String envVal = System.getenv(key);
+                if (envVal != null && !envVal.trim().isEmpty()) {
+                    dbUrl = envVal.trim();
+                    System.out.println("DatabaseConfig: Found database URL from System.getenv(" + key + ")");
+                    break;
+                }
+            }
+        }
+
         if (dbUrl != null && !dbUrl.trim().isEmpty()) {
             dbUrl = dbUrl.trim();
             String urlToParse = dbUrl.startsWith("jdbc:") ? dbUrl.substring(5) : dbUrl;
@@ -147,6 +159,9 @@ public class DatabaseConfig {
         properties.setUsername(username);
         properties.setPassword(password);
 
+        System.setProperty("spring.datasource.url", dbUrl);
+        System.setProperty("jakarta.persistence.jdbc.url", dbUrl);
+
         return properties;
     }
 
@@ -162,6 +177,7 @@ public class DatabaseConfig {
         dataSource.setIdleTimeout(30000);
         dataSource.setMaxLifetime(600000);
         dataSource.setConnectionTimeout(20000);
+        dataSource.setInitializationFailTimeout(0);
 
         try (java.sql.Connection conn = dataSource.getConnection()) {
             System.out.println("DatabaseConfig: SUCCESS - Connected to PostgreSQL database at " + properties.getUrl() + " as user " + properties.getUsername());
