@@ -117,9 +117,18 @@ public class DatabaseConfig {
                         query = pathAndQuery.substring(1);
                     }
 
+                    if (query == null || !query.contains("sslmode")) {
+                        if (host.contains(".render.com") || host.contains(".neon.tech") || host.contains(".supabase.")
+                                || host.contains(".aws.") || host.contains(".azure.") || host.contains(".gcp.")) {
+                            query = (query == null || query.isEmpty()) ? "sslmode=require" : query + "&sslmode=require";
+                        } else if (!host.equals("localhost") && !host.equals("127.0.0.1") && !host.equals("db") && !host.equals("disease-db")) {
+                            query = (query == null || query.isEmpty()) ? "sslmode=prefer" : query + "&sslmode=prefer";
+                        }
+                    }
+
                     String queryString = (query != null && !query.trim().isEmpty()) ? "?" + query.trim() : "";
                     dbUrl = "jdbc:postgresql://" + host + ":" + port + path + queryString;
-                    System.out.println("DatabaseConfig: Cleanly parsed PostgreSQL cloud connection -> Host: " + host + ":" + port + ", Path: " + path + ", User: " + username);
+                    System.out.println("DatabaseConfig: Parsed PostgreSQL connection -> Host: " + host + ":" + port + ", Path: " + path + ", User: " + username);
                 } catch (Exception e) {
                     System.err.println("DatabaseConfig: Warning while parsing database URI, falling back to raw JDBC string: " + e.getMessage());
                     if (!dbUrl.startsWith("jdbc:")) {
@@ -153,6 +162,14 @@ public class DatabaseConfig {
         dataSource.setIdleTimeout(30000);
         dataSource.setMaxLifetime(600000);
         dataSource.setConnectionTimeout(20000);
+
+        try (java.sql.Connection conn = dataSource.getConnection()) {
+            System.out.println("DatabaseConfig: SUCCESS - Connected to PostgreSQL database at " + properties.getUrl() + " as user " + properties.getUsername());
+        } catch (Exception e) {
+            System.err.println("DatabaseConfig: ERROR - Failed to connect to PostgreSQL at " + properties.getUrl() + " as user " + properties.getUsername());
+            System.err.println("DatabaseConfig: Failure Exception: " + e.getClass().getName() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
 
         return dataSource;
     }
