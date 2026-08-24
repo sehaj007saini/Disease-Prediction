@@ -3,7 +3,7 @@
 @layer base {
   :root {
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-heading: 'Plus Jakarta Sans', sans-serif;
+    --font-heading: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
 
@@ -13,7 +13,7 @@
     color: #0F172A;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .dark body,
@@ -24,142 +24,52 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
   }
 }
 
-/* Glassmorphism & Glowing Panels */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
-}
-
-.dark .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(30, 41, 59, 0.8);
-  box-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.4);
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  border: 1px solid #E2E8F0;
-  border-radius: 1.25rem;
-  box-shadow: 0 2px 10px -2px rgba(37, 99, 235, 0.04);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dark .glass-card {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid #1E293B;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-}
-
-.glass-card:hover {
-  transform: translateY(-2px);
-  border-color: #93C5FD;
-  box-shadow: 0 12px 25px -4px rgba(37, 99, 235, 0.12);
-}
-
-.dark .glass-card:hover {
-  border-color: #2563EB;
-  box-shadow: 0 12px 30px -4px rgba(37, 99, 235, 0.25);
-}
-
-/* Glowing Ambient Gradients */
-.glow-blue {
-  box-shadow: 0 0 50px -10px rgba(37, 99, 235, 0.25);
-}
-
-.glow-emerald {
-  box-shadow: 0 0 50px -10px rgba(16, 185, 129, 0.25);
-}
-
-.glow-purple {
-  box-shadow: 0 0 50px -10px rgba(147, 51, 234, 0.25);
-}
-
-/* Keyframe Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulseSlow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.02); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-.animate-pulse-slow {
-  animation: pulseSlow 3s infinite ease-in-out;
-}
-
-/* Modern SaaS Cards & Panels */
+/* Refined Clinical Cards */
 .clinical-card {
   background-color: #ffffff;
   border: 1px solid #E2E8F0;
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px 0 rgb(15 23 42 / 0.03);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0.5rem;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark .clinical-card {
   background-color: #0F172A;
   border-color: #1E293B;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3);
 }
 
 .clinical-card:hover {
   border-color: #CBD5E1;
-  box-shadow: 0 4px 12px -2px rgb(15 23 42 / 0.06);
 }
 
 .dark .clinical-card:hover {
   border-color: #334155;
-  box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.4);
 }
 
 .clinical-card-interactive {
   background-color: #ffffff;
   border: 1px solid #E2E8F0;
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px 0 rgb(15 23 42 / 0.03);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0.5rem;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
 }
 
 .dark .clinical-card-interactive {
   background-color: #0F172A;
   border-color: #1E293B;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3);
 }
 
 .clinical-card-interactive:hover {
-  background-color: #ffffff;
-  border-color: #93C5FD;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px -3px rgba(37, 99, 235, 0.1);
+  border-color: #2563EB;
+  background-color: #F8FAFC;
 }
 
 .dark .clinical-card-interactive:hover {
-  background-color: #1E293B;
   border-color: #2563EB;
-  box-shadow: 0 10px 25px -3px rgba(37, 99, 235, 0.25);
-}
-
-/* Custom Interactive Range Sliders */
-input[type="range"] {
-  accent-color: #2563EB;
-  cursor: pointer;
+  background-color: #1E293B;
 }
 
 /* Form Inputs */
@@ -167,7 +77,7 @@ input[type="range"] {
   background-color: #ffffff;
   border: 1px solid #E2E8F0;
   color: #0F172A;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -180,10 +90,88 @@ input[type="range"] {
 .clinical-input:focus {
   outline: none;
   border-color: #2563EB;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Clinical Status Badges */
+/* Range Sliders */
+input[type="range"] {
+  accent-color: #2563EB;
+  cursor: pointer;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAFC;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #080C14;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Legacy glass panel support (kept for other components) */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #E2E8F0;
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #1E293B;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .glass-card {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid #1E293B;
+}
+
+.glass-card:hover {
+  transform: translateY(-1px);
+  border-color: #93C5FD;
+  box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.1);
+}
+
+.dark .glass-card:hover {
+  border-color: #2563EB;
+  box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.2);
+}
+
+/* Legacy badge styles (kept for other components) */
 .clinical-badge-low {
   background-color: #ECFDF5;
   color: #059669;
@@ -230,26 +218,4 @@ input[type="range"] {
   background-color: rgba(136, 19, 55, 0.35);
   color: #F87171;
   border-color: rgba(244, 63, 94, 0.4);
-}
-
-/* Custom Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #F8FAFC;
-}
-.dark ::-webkit-scrollbar-track {
-  background: #080C14;
-}
-::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 3px;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
 }

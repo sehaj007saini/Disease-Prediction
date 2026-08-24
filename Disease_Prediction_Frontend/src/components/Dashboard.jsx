@@ -1,9 +1,9 @@
 import React from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, CartesianGrid 
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line, CartesianGrid 
 } from 'recharts';
 import { 
-  Activity, Users, AlertTriangle, ShieldCheck, ArrowUpRight, PlusCircle, TrendingUp, HeartPulse, Brain, Droplet, Stethoscope, ChevronRight, Watch, Heart, Flame 
+  Activity, AlertTriangle, Clock, TrendingUp, HeartPulse, Brain, Droplet, Stethoscope, ChevronRight, ArrowRight, AlertCircle, CheckCircle2, FileText, Calendar
 } from 'lucide-react';
 
 export default function Dashboard({ analytics, theme = 'light', onNewPrediction, onSelectPatient, onOpenWearableModal }) {
@@ -11,8 +11,8 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="flex items-center space-x-3 text-[#2563EB]">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#2563EB] border-t-transparent"></div>
-          <span className="font-medium text-sm text-[#64748B] dark:text-slate-400">Loading diagnostic telemetry analytics...</span>
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#2563EB] border-t-transparent"></div>
+          <span className="text-sm text-[#64748B] dark:text-slate-400">Loading clinical data...</span>
         </div>
       </div>
     );
@@ -23,188 +23,352 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
   const riskData = Object.entries(analytics.riskLevelDistribution || {}).map(([key, val]) => ({
     name: key,
     value: val,
-    color: key === 'Low' ? '#10B981' : key === 'Medium' ? '#F59E0B' : key === 'High' ? '#F97316' : '#EF4444'
+    color: key === 'Low' ? '#10B981' : key === 'Medium' ? '#F59E0B' : key === 'High' ? '#F97316' : '#DC2626'
   }));
 
-  const diseaseData = Object.entries(analytics.diseaseTargetDistribution || {}).map(([key, val]) => ({
-    name: key.replace('_', ' ').toUpperCase(),
-    value: val
-  }));
-
-  const DISEASE_LAUNCHERS = [
-    { key: 'diabetes', title: 'Diabetes Screening', subtitle: 'Glucose & Insulin Analysis', icon: Droplet, color: isDark ? 'text-sky-400' : 'text-blue-600', bg: isDark ? 'bg-sky-950/40 border-sky-800/40' : 'bg-blue-50 border-blue-200' },
-    { key: 'heart_disease', title: 'Cardiovascular Risk', subtitle: 'ECG & Lipid Metrics', icon: HeartPulse, color: isDark ? 'text-rose-400' : 'text-rose-600', bg: isDark ? 'bg-rose-950/40 border-rose-800/40' : 'bg-rose-50 border-rose-200' },
-    { key: 'stroke', title: 'Stroke Risk Panel', subtitle: 'Neurovascular Assessment', icon: Brain, color: isDark ? 'text-amber-400' : 'text-amber-600', bg: isDark ? 'bg-amber-950/40 border-amber-800/40' : 'bg-amber-50 border-amber-200' },
-    { key: 'kidney_disease', title: 'Kidney / Renal Panel', subtitle: 'eGFR & Metabolic Indicators', icon: Activity, color: isDark ? 'text-emerald-400' : 'text-emerald-600', bg: isDark ? 'bg-emerald-950/40 border-emerald-800/40' : 'bg-emerald-50 border-emerald-200' },
+  const screeningTrendData = [
+    { day: 'Mon', count: 12 },
+    { day: 'Tue', count: 19 },
+    { day: 'Wed', count: 15 },
+    { day: 'Thu', count: 22 },
+    { day: 'Fri', count: 28 },
+    { day: 'Sat', count: 18 },
+    { day: 'Sun', count: 14 },
   ];
 
-  return (
-    <div className="space-y-6">
-      
-      {/* Header Clinical Command Hero Banner */}
-      <div className={`rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border shadow-xl relative overflow-hidden transition-all duration-300 ${
-        isDark 
-          ? 'bg-gradient-to-br from-slate-900 via-slate-900/95 to-blue-950/40 border-slate-800/80 shadow-blue-950/20' 
-          : 'bg-gradient-to-br from-blue-50/90 via-white to-indigo-50/60 border-blue-100 shadow-blue-500/5'
-      }`}>
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-slow"></div>
-        <div className="absolute bottom-0 left-1/3 -mb-12 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  const SCREENING_PROGRAMS = [
+    { key: 'diabetes', title: 'Diabetes', subtitle: 'Glucose & insulin', icon: Droplet },
+    { key: 'heart_disease', title: 'Cardiovascular', subtitle: 'ECG & lipid metrics', icon: HeartPulse },
+    { key: 'stroke', title: 'Stroke', subtitle: 'Neurovascular assessment', icon: Brain },
+    { key: 'kidney_disease', title: 'Renal', subtitle: 'eGFR & metabolic indicators', icon: Activity },
+  ];
 
-        <div className="space-y-3 max-w-3xl relative z-10">
-          <div className={`inline-flex items-center space-x-2 rounded-full px-3.5 py-1 text-xs font-mono font-semibold border ${
-            isDark ? 'bg-blue-950/80 text-blue-300 border-blue-800/60' : 'bg-blue-50 text-blue-700 border-blue-200'
-          }`}>
-            <Stethoscope className="h-3.5 w-3.5 text-blue-500" />
-            <span>MediPulse AI Intelligence Engine v2.4</span>
-          </div>
-          <h1 className={`text-2xl sm:text-3xl font-extrabold tracking-tight font-heading ${
-            isDark ? 'text-white' : 'text-slate-900'
-          }`}>
-            Diagnostic Intelligence & Risk Triage Dashboard
+  // Mock patient data requiring attention
+  const patientsRequiringAttention = [
+    { 
+      id: 1, 
+      name: 'Sarah Mitchell', 
+      risk: 'HIGH', 
+      screening: 'Diabetes', 
+      finding: 'Elevated glucose (186 mg/dL)', 
+      updated: '12 min ago',
+      riskColor: 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950/30 dark:border-red-900/30'
+    },
+    { 
+      id: 2, 
+      name: 'James Rodriguez', 
+      risk: 'HIGH', 
+      screening: 'Cardiovascular', 
+      finding: 'Abnormal ECG pattern', 
+      updated: '1 hr ago',
+      riskColor: 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950/30 dark:border-red-900/30'
+    },
+    { 
+      id: 3, 
+      name: 'Emily Chen', 
+      risk: 'MODERATE', 
+      screening: 'Renal', 
+      finding: 'Reduced eGFR (58 mL/min)', 
+      updated: 'Yesterday',
+      riskColor: 'text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/30 dark:border-amber-900/30'
+    },
+  ];
+
+  const highRiskCount = Object.entries(analytics.riskLevelDistribution || {})
+    .filter(([key]) => key === 'High' || key === 'Critical')
+    .reduce((sum, [, val]) => sum + val, 0);
+  
+  const moderateRiskCount = analytics.riskLevelDistribution?.Medium || 0;
+
+  return (
+    <div className="space-y-5">
+      
+      {/* Compact Dashboard Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h1 className={`text-2xl font-semibold tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+            Good morning, Doctor
           </h1>
-          <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-            Multi-condition clinical risk prediction engine powered by Spring Boot REST APIs, PostgreSQL persistence, and Scikit-Learn Random Forest / Gradient Boosting inference pipelines.
+          <p className={`text-sm mt-0.5 ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+            {analytics.totalPatients} active patients · {highRiskCount + moderateRiskCount} require attention
           </p>
         </div>
-
-        <div className="relative z-10 flex items-center space-x-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={onOpenWearableModal}
-            className="flex items-center space-x-2 rounded-2xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800/60 px-4 py-3.5 text-xs font-bold text-blue-600 dark:text-blue-400 shadow-md hover:bg-blue-50 dark:hover:bg-slate-800 transition-all duration-200 whitespace-nowrap"
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium border transition-colors ${
+              isDark 
+                ? 'bg-[#0F172A] border-[#334155] text-slate-200 hover:bg-[#1E293B]' 
+                : 'bg-white border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC]'
+            }`}
           >
-            <Watch className="h-4 w-4 text-blue-500 animate-pulse" />
+            <Activity className="h-4 w-4" />
             <span>Sync Wearables</span>
           </button>
           <button
             onClick={() => onNewPrediction('diabetes')}
-            className="flex items-center space-x-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-xs font-bold text-white shadow-lg hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] transition-all duration-200 hover:shadow-blue-500/25 whitespace-nowrap"
+            className="flex items-center gap-2 rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white hover:bg-[#1D4ED8] transition-colors"
           >
-            <PlusCircle className="h-4 w-4" />
-            <span>New Diagnostic Test</span>
+            <Stethoscope className="h-4 w-4" />
+            <span>+ New Screening</span>
           </button>
         </div>
       </div>
 
-      {/* 4 Visually Prominent Analytics Metric Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* 4 Compact KPI Cards */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         
-        <div className="glass-card p-6 flex items-center justify-between group">
-          <div>
-            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Screenings</p>
-            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1 font-mono">{analytics.totalPredictions}</h3>
-            <span className="text-[11px] text-emerald-500 font-semibold flex items-center mt-1.5">
-              <TrendingUp className="h-3.5 w-3.5 mr-1" /> +14.2% this week
-            </span>
-          </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-500 group-hover:scale-110 transition-transform">
-            <Activity className="h-6 w-6" />
-          </div>
-        </div>
-
-        <div className="glass-card p-6 flex items-center justify-between group">
-          <div>
-            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Registered Patients</p>
-            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1 font-mono">{analytics.totalPatients}</h3>
-            <button 
-              onClick={onSelectPatient}
-              className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center mt-1.5"
-            >
-              <span>View Patient Profiles</span>
-              <ArrowUpRight className="h-3.5 w-3.5 ml-0.5" />
-            </button>
-          </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 group-hover:scale-110 transition-transform">
-            <Users className="h-6 w-6" />
+        <div className={`rounded-lg p-4 border ${
+          isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
+        }`}>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className={`text-xs font-medium uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                Patients requiring attention
+              </p>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                  {highRiskCount + moderateRiskCount}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400 font-medium">
+                {highRiskCount} High Risk · {moderateRiskCount} Moderate
+              </p>
+            </div>
+            <div className={`rounded-lg p-2 ${isDark ? 'bg-red-950/30' : 'bg-red-50'}`}>
+              <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+            </div>
           </div>
         </div>
 
-        <div className="glass-card p-6 flex items-center justify-between group">
-          <div>
-            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Elevated Risk Triage</p>
-            <h3 className="text-3xl font-extrabold text-amber-500 mt-1 font-mono">{analytics.highRiskCount}</h3>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1.5 block">Requires Follow-up</span>
-          </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 group-hover:scale-110 transition-transform">
-            <AlertTriangle className="h-6 w-6" />
+        <div className={`rounded-lg p-4 border ${
+          isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
+        }`}>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className={`text-xs font-medium uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                Abnormal results
+              </p>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                  {highRiskCount}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-amber-600 dark:text-amber-400 font-medium">
+                New since yesterday
+              </p>
+            </div>
+            <div className={`rounded-lg p-2 ${isDark ? 'bg-amber-950/30' : 'bg-amber-50'}`}>
+              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
           </div>
         </div>
 
-        <div className="glass-card p-6 flex items-center justify-between group">
-          <div>
-            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Model Precision</p>
-            <h3 className="text-3xl font-extrabold text-emerald-500 mt-1 font-mono">
-              {(analytics.avgConfidenceScore * 100).toFixed(1)}%
-            </h3>
-            <span className="text-[11px] text-emerald-500 font-medium mt-1.5 block font-mono">Validated ML Ensemble</span>
+        <div className={`rounded-lg p-4 border ${
+          isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
+        }`}>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className={`text-xs font-medium uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                Follow-ups due
+              </p>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                  3
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-blue-600 dark:text-blue-400 font-medium">
+                Due today
+              </p>
+            </div>
+            <div className={`rounded-lg p-2 ${isDark ? 'bg-blue-950/30' : 'bg-blue-50'}`}>
+              <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 group-hover:scale-110 transition-transform">
-            <ShieldCheck className="h-6 w-6" />
+        </div>
+
+        <div className={`rounded-lg p-4 border ${
+          isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
+        }`}>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className={`text-xs font-medium uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                Active patients
+              </p>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                  {analytics.totalPatients}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-green-600 dark:text-green-400 font-medium">
+                Across all screening programs
+              </p>
+            </div>
+            <div className={`rounded-lg p-2 ${isDark ? 'bg-green-950/30' : 'bg-green-50'}`}>
+              <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+            </div>
           </div>
         </div>
 
       </div>
 
-      {/* Quick Launchers for Diagnostic Presets */}
+      {/* Patients Requiring Attention - Primary Section */}
+      <div className={`rounded-lg border ${isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'}`}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E2E8F0] dark:border-[#1E293B]">
+          <h2 className={`text-base font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+            Patients requiring attention
+          </h2>
+          <button
+            onClick={onSelectPatient}
+            className="text-sm font-medium text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 transition-colors"
+          >
+            View all
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className={`text-xs font-medium uppercase tracking-wide border-b ${
+                isDark 
+                  ? 'text-slate-400 border-[#1E293B] bg-[#0F172A]' 
+                  : 'text-[#64748B] border-[#E2E8F0] bg-[#F8FAFC]'
+              }`}>
+                <th className="px-5 py-3 text-left font-medium">Patient</th>
+                <th className="px-5 py-3 text-left font-medium">Risk</th>
+                <th className="px-5 py-3 text-left font-medium">Screening</th>
+                <th className="px-5 py-3 text-left font-medium">Key finding</th>
+                <th className="px-5 py-3 text-left font-medium">Last updated</th>
+                <th className="px-5 py-3 text-left font-medium">Action</th>
+              </tr>
+            </thead>
+            <tbody className={`divide-y ${isDark ? 'divide-[#1E293B]' : 'divide-[#E2E8F0]'}`}>
+              {patientsRequiringAttention.map((patient) => (
+                <tr 
+                  key={patient.id}
+                  className={`transition-colors ${
+                    isDark ? 'hover:bg-[#1E293B]/50' : 'hover:bg-[#F8FAFC]'
+                  }`}
+                >
+                  <td className={`px-5 py-3 text-sm font-medium ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                    {patient.name}
+                  </td>
+                  <td className="px-5 py-3">
+                    <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium border ${patient.riskColor}`}>
+                      {patient.risk}
+                    </span>
+                  </td>
+                  <td className={`px-5 py-3 text-sm ${isDark ? 'text-slate-300' : 'text-[#0F172A]'}`}>
+                    {patient.screening}
+                  </td>
+                  <td className={`px-5 py-3 text-sm ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                    {patient.finding}
+                  </td>
+                  <td className={`px-5 py-3 text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                    {patient.updated}
+                  </td>
+                  <td className="px-5 py-3">
+                    <button
+                      onClick={onSelectPatient}
+                      className="text-sm font-medium text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 transition-colors"
+                    >
+                      Review
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Screening Programs - Compact */}
       <div>
-        <h2 className="text-xs font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider mb-3">Diagnostic Target Launchers</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {DISEASE_LAUNCHERS.map((item) => {
-            const Icon = item.icon;
+        <h2 className={`text-base font-semibold mb-3 ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+          Screening programs
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {SCREENING_PROGRAMS.map((program) => {
+            const Icon = program.icon;
             return (
-              <div 
-                key={item.key}
-                onClick={() => onNewPrediction(item.key)}
-                className="clinical-card-interactive p-4.5 border border-[#E2E8F0] dark:border-slate-800 flex items-center justify-between cursor-pointer group"
+              <button
+                key={program.key}
+                onClick={() => onNewPrediction(program.key)}
+                className={`flex items-center gap-3 rounded-lg p-4 border text-left transition-all ${
+                  isDark 
+                    ? 'bg-[#0F172A] border-[#1E293B] hover:border-[#2563EB] hover:bg-[#1E293B]' 
+                    : 'bg-white border-[#E2E8F0] hover:border-[#2563EB] hover:bg-[#F8FAFC]'
+                }`}
               >
-                <div className="flex items-center space-x-3">
-                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center border ${item.bg}`}>
-                    <Icon className={`h-5 w-5 ${item.color}`} />
+                <div className={`rounded-lg p-2 ${isDark ? 'bg-blue-950/30' : 'bg-blue-50'}`}>
+                  <Icon className="h-5 w-5 text-[#2563EB]" />
+                </div>
+                <div className="flex-1">
+                  <div className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                    {program.title}
                   </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-[#0F172A] dark:text-slate-100 group-hover:text-[#2563EB] dark:group-hover:text-blue-400 transition-colors">{item.title}</h4>
-                    <p className="text-[11px] text-[#64748B] dark:text-slate-400">{item.subtitle}</p>
+                  <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                    {program.subtitle}
                   </div>
                 </div>
-                <ChevronRight className="h-4 w-4 text-[#94A3B8] dark:text-slate-500 group-hover:text-[#2563EB] dark:group-hover:text-blue-400 transition-colors" />
-              </div>
+                <ChevronRight className={`h-4 w-4 ${isDark ? 'text-slate-400' : 'text-[#94A3B8]'}`} />
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* 2 Telemetry Visualizations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Analytics Section - Two Column */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         
-        {/* Risk Level Distribution Bar Chart */}
-        <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800">
-          <div className="flex items-center justify-between mb-5">
+        {/* Patient Risk Distribution */}
+        <div className={`rounded-lg p-5 border ${isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'}`}>
+          <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-[#0F172A] dark:text-white uppercase tracking-wider">Patient Triage Risk Distribution</h3>
-              <p className="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">Categorized diagnostic severity classification counts</p>
+              <h3 className={`text-base font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                Patient risk distribution
+              </h3>
+              <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                Risk stratification across all screenings
+              </p>
             </div>
-            <span className="text-[11px] font-mono text-[#64748B] dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-[#E2E8F0] dark:border-slate-700">
+            <span className={`text-xs font-mono px-2 py-1 rounded border ${
+              isDark ? 'bg-[#1E293B] border-[#334155] text-slate-400' : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]'
+            }`}>
               n = {analytics.totalPredictions}
             </span>
           </div>
 
-          <div className="h-64 w-full">
+          <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={riskData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1E293B' : '#F1F5F9'} vertical={false} />
-                <XAxis dataKey="name" stroke={isDark ? '#94A3B8' : '#64748B'} fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke={isDark ? '#94A3B8' : '#64748B'} fontSize={11} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1E293B' : '#E2E8F0'} vertical={false} />
+                <XAxis 
+                  dataKey="name" 
+                  stroke={isDark ? '#64748B' : '#94A3B8'} 
+                  fontSize={12} 
+                  tickLine={false} 
+                  axisLine={false} 
+                />
+                <YAxis 
+                  stroke={isDark ? '#64748B' : '#94A3B8'} 
+                  fontSize={12} 
+                  tickLine={false} 
+                  axisLine={false} 
+                />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: isDark ? '#0F172A' : '#FFFFFF', 
                     borderColor: isDark ? '#334155' : '#E2E8F0', 
-                    borderRadius: '12px', 
-                    color: isDark ? '#F8FAFC' : '#0F172A', 
-                    fontSize: '12px', 
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.2)' 
+                    borderRadius: '8px', 
+                    fontSize: '13px',
+                    padding: '8px 12px'
                   }}
-                  cursor={{ fill: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(241, 245, 249, 0.6)' }}
+                  cursor={{ fill: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(248, 250, 252, 0.8)' }}
                 />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={42}>
+                <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={50}>
                   {riskData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
@@ -214,124 +378,95 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
           </div>
         </div>
 
-        {/* Disease Target Distribution Pie Chart */}
-        <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800">
-          <div className="flex items-center justify-between mb-5">
+        {/* Screening Activity Trend */}
+        <div className={`rounded-lg p-5 border ${isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'}`}>
+          <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-[#0F172A] dark:text-white uppercase tracking-wider">Screening Target Breakdown</h3>
-              <p className="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">Distribution across clinical model categories</p>
+              <h3 className={`text-base font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                Screening activity
+              </h3>
+              <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                Weekly screening volume trend
+              </p>
             </div>
-            <span className="text-[11px] font-mono text-[#64748B] dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-[#E2E8F0] dark:border-slate-700">
-              4 ML Engines
+            <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 font-medium">
+              <TrendingUp className="h-3 w-3" />
+              +18%
             </span>
           </div>
 
-          <div className="h-64 w-full flex items-center justify-center">
+          <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={diseaseData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {diseaseData.map((entry, index) => {
-                    const colors = ['#2563EB', '#10B981', '#8B5CF6', '#EC4899'];
-                    return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} stroke={isDark ? '#0F172A' : '#FFFFFF'} strokeWidth={2} />;
-                  })}
-                </Pie>
+              <LineChart data={screeningTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1E293B' : '#E2E8F0'} vertical={false} />
+                <XAxis 
+                  dataKey="day" 
+                  stroke={isDark ? '#64748B' : '#94A3B8'} 
+                  fontSize={12} 
+                  tickLine={false} 
+                  axisLine={false} 
+                />
+                <YAxis 
+                  stroke={isDark ? '#64748B' : '#94A3B8'} 
+                  fontSize={12} 
+                  tickLine={false} 
+                  axisLine={false} 
+                />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: isDark ? '#0F172A' : '#FFFFFF', 
                     borderColor: isDark ? '#334155' : '#E2E8F0', 
-                    borderRadius: '12px', 
-                    color: isDark ? '#F8FAFC' : '#0F172A', 
-                    fontSize: '12px', 
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.2)' 
+                    borderRadius: '8px', 
+                    fontSize: '13px',
+                    padding: '8px 12px'
                   }}
+                  cursor={{ stroke: isDark ? '#334155' : '#CBD5E1', strokeWidth: 1 }}
                 />
-              </PieChart>
+                <Line 
+                  type="monotone" 
+                  dataKey="count" 
+                  stroke="#2563EB" 
+                  strokeWidth={2} 
+                  dot={{ fill: '#2563EB', r: 4 }} 
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
       </div>
 
-      {/* Recent Diagnostic Activity Log */}
-      <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-[#0F172A] dark:text-white uppercase tracking-wider">Live Diagnostic Inference Activity</h3>
-            <p className="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">Real-time model prediction event telemetry log</p>
+      {/* Clinical Insights Panel */}
+      <div className={`rounded-lg p-5 border ${isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'}`}>
+        <h3 className={`text-base font-semibold mb-3 ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+          Clinical insights
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+            <p className={isDark ? 'text-slate-300' : 'text-[#0F172A]'}>
+              <span className="font-semibold">{highRiskCount + moderateRiskCount} patients</span> currently require review.
+            </p>
           </div>
-          <button 
-            onClick={() => onNewPrediction('diabetes')}
-            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center space-x-1"
-          >
-            <span>Run New Screening</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">
-                <th className="pb-3">Diagnostic Target</th>
-                <th className="pb-3">Model Engine</th>
-                <th className="pb-3">Risk Classification</th>
-                <th className="pb-3">Confidence Score</th>
-                <th className="pb-3">Inference Latency</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
-              <tr>
-                <td className="py-3 flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="font-bold text-slate-800 dark:text-slate-200">Type-2 Diabetes</span>
-                </td>
-                <td className="py-3 font-mono text-[#64748B] dark:text-slate-400">RandomForestClassifier</td>
-                <td className="py-3">
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60">
-                    High Risk (78%)
-                  </span>
-                </td>
-                <td className="py-3 font-mono text-emerald-600 dark:text-emerald-400 font-bold">96.8%</td>
-                <td className="py-3 font-mono text-slate-500">14ms</td>
-              </tr>
-              <tr>
-                <td className="py-3 flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-rose-500" />
-                  <span className="font-bold text-slate-800 dark:text-slate-200">Cardiovascular Risk</span>
-                </td>
-                <td className="py-3 font-mono text-[#64748B] dark:text-slate-400">GradientBoostingClassifier</td>
-                <td className="py-3">
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
-                    Low Risk (18%)
-                  </span>
-                </td>
-                <td className="py-3 font-mono text-emerald-600 dark:text-emerald-400 font-bold">95.4%</td>
-                <td className="py-3 font-mono text-slate-500">18ms</td>
-              </tr>
-              <tr>
-                <td className="py-3 flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-amber-500" />
-                  <span className="font-bold text-slate-800 dark:text-slate-200">Stroke / Cerebrovascular</span>
-                </td>
-                <td className="py-3 font-mono text-[#64748B] dark:text-slate-400">GradientBoostingClassifier</td>
-                <td className="py-3">
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60">
-                    Severe Risk (84%)
-                  </span>
-                </td>
-                <td className="py-3 font-mono text-emerald-600 dark:text-emerald-400 font-bold">97.1%</td>
-                <td className="py-3 font-mono text-slate-500">12ms</td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+            <p className={isDark ? 'text-slate-300' : 'text-[#0F172A]'}>
+              <span className="font-semibold">{highRiskCount} patients</span> show high-risk indicators.
+            </p>
+          </div>
+          <div className="flex items-start gap-2">
+            <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+            <p className={isDark ? 'text-slate-300' : 'text-[#0F172A]'}>
+              Cardiovascular screening has <span className="font-semibold">increased 18%</span> this week.
+            </p>
+          </div>
+          <div className="flex items-start gap-2">
+            <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+            <p className={isDark ? 'text-slate-300' : 'text-[#0F172A]'}>
+              <span className="font-semibold">3 follow-ups</span> are due today.
+            </p>
+          </div>
         </div>
       </div>
 

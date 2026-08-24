@@ -1,25 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronRight, Watch, UserCheck, Shield 
+  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronDown, ChevronRight, Watch, UserCheck, Shield, Settings 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatus, theme, toggleTheme, onOpenWearableModal }) {
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  const navItems = [
+  const dropdownRef = useRef(null);
+  const userDropdownRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setToolsDropdownOpen(false);
+      }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setUserDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const primaryNavItems = [
     { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
-    { id: 'predict', label: 'Single Risk Predictor', icon: Stethoscope },
-    { id: 'multi', label: '5-Disease Screen', icon: Sparkles },
-    { id: 'simulate', label: 'What-If Studio', icon: Sliders },
-    { id: 'governance', label: 'XAI & Governance', icon: Cpu },
-    { id: 'patients', label: 'Patient Registry', icon: Users },
-    { id: 'batch', label: 'Batch Processing', icon: Layers },
-    { id: 'admin', label: 'Admin Console', icon: ShieldCheck },
-    { id: 'profile', label: 'My Profile', icon: UserCheck },
-    { id: 'copilot', label: 'MedAssist AI', icon: Bot },
-    { id: 'system', label: 'System Health', icon: Server },
+    { id: 'patients', label: 'Patients', icon: Users },
+    { id: 'predict', label: 'Screening', icon: Stethoscope },
+    { id: 'multi', label: 'Risk Analysis', icon: Activity },
+    { id: 'batch', label: 'Analytics', icon: Layers },
+  ];
+
+  const secondaryTools = [
+    { id: 'simulate', label: 'Counterfactual Analysis', subtitle: 'What-if risk scenarios', icon: Sliders },
+    { id: 'governance', label: 'Model Governance', subtitle: 'XAI metrics & explainability', icon: Cpu },
+    { id: 'copilot', label: 'Clinical Assistant', subtitle: 'AI-powered guidance', icon: Bot },
+    { id: 'system', label: 'System Health', subtitle: 'Infrastructure monitoring', icon: Server },
+    { id: 'admin', label: 'Administration', subtitle: 'User & access management', icon: Settings },
   ];
 
   const isDark = theme === 'dark';
@@ -27,201 +48,212 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
   const handleNavClick = (id) => {
     setActiveTab(id);
     setMobileMenuOpen(false);
+    setToolsDropdownOpen(false);
+    setUserDropdownOpen(false);
   };
 
+  const isSecondaryActive = secondaryTools.some(tool => tool.id === activeTab);
+
   return (
-    <header className={`sticky top-0 z-40 border-b transition-colors duration-200 backdrop-blur-xl ${
-      isDark ? 'border-[#1E293B] bg-[#090D16]/90 shadow-lg shadow-black/20' : 'border-[#E2E8F0] bg-white/90 shadow-xs'
+    <header className={`sticky top-0 z-40 border-b transition-colors duration-200 backdrop-blur-sm ${
+      isDark ? 'border-[#1E293B] bg-[#0F172A]/95' : 'border-[#E2E8F0] bg-white/95'
     }`}>
-      <div className="mx-auto flex max-w-[1536px] items-center justify-between px-3 sm:px-6 lg:px-8 py-2.5">
+      <div className="mx-auto flex max-w-[1536px] items-center justify-between px-3 sm:px-6 lg:px-8 h-14">
         
-        {/* Brand Logo & Workstation Tag */}
+        {/* Brand Logo */}
         <div 
-          className="flex items-center space-x-3 cursor-pointer group shrink-0" 
+          className="flex items-center gap-2 cursor-pointer group shrink-0" 
           onClick={() => handleNavClick('dashboard')}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-500 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-            <Activity className="h-5 w-5 stroke-[2.2]" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#2563EB] text-white">
+            <Activity className="h-4 w-4 stroke-[2.5]" />
           </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className={`text-lg font-bold tracking-tight font-heading ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
-                MediPulse <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent font-extrabold">AI</span>
-              </span>
-              <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-mono font-semibold border ${
-                isDark ? 'bg-blue-950/80 text-blue-300 border-blue-800/60' : 'bg-blue-50 text-[#2563EB] border-blue-200/80'
-              }`}>
-                EHR v2.4
-              </span>
-            </div>
-            <p className={`text-[11px] font-normal hidden sm:block ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
-              Clinical Diagnostic Intelligence Suite
-            </p>
+          <div className="flex items-center gap-2">
+            <span className={`text-base font-semibold tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+              MediPulse AI
+            </span>
+            <span className={`text-xs font-medium px-1.5 py-0.5 rounded border ${
+              isDark ? 'bg-[#1E293B] border-[#334155] text-slate-400' : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]'
+            }`}>
+              v2.4
+            </span>
           </div>
         </div>
 
         {/* Primary Desktop Navigation */}
-        <nav className={`hidden lg:flex items-center space-x-1 rounded-2xl p-1 border transition-colors ${
-          isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-slate-100/90 border-[#E2E8F0]'
-        }`}>
-          {navItems.map((item) => {
+        <nav className="hidden md:flex items-center gap-1">
+          {primaryNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`flex items-center space-x-1 rounded-xl px-2.5 py-1 text-[11px] xl:text-xs font-medium transition-all duration-150 whitespace-nowrap ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-sm scale-[1.02]'
+                    ? 'bg-[#2563EB] text-white'
                     : isDark 
-                      ? 'text-slate-400 hover:bg-slate-800/80 hover:text-white' 
-                      : 'text-[#64748B] hover:bg-white hover:text-[#0F172A]'
+                      ? 'text-slate-300 hover:bg-[#1E293B] hover:text-white' 
+                      : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
                 }`}
               >
-                <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : isDark ? 'text-slate-400' : 'text-[#64748B]'}`} />
+                <Icon className="h-4 w-4" />
                 <span>{item.label}</span>
               </button>
             );
           })}
+
+          {/* Governance Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setToolsDropdownOpen(!toolsDropdownOpen)}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+                isSecondaryActive
+                  ? 'bg-[#2563EB] text-white'
+                  : isDark
+                    ? 'text-slate-300 hover:bg-[#1E293B] hover:text-white'
+                    : 'text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
+              }`}
+            >
+              <Shield className="h-4 w-4" />
+              <span>Governance</span>
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {toolsDropdownOpen && (
+              <div className={`absolute right-0 mt-2 w-64 rounded-lg border shadow-lg p-1.5 z-50 ${
+                isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
+              }`}>
+                {secondaryTools.map((tool) => {
+                  const ToolIcon = tool.icon;
+                  const isToolActive = activeTab === tool.id;
+                  return (
+                    <button
+                      key={tool.id}
+                      onClick={() => handleNavClick(tool.id)}
+                      className={`w-full text-left flex items-start gap-2.5 p-2.5 rounded-md transition-all ${
+                        isToolActive
+                          ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400'
+                          : isDark
+                            ? 'hover:bg-[#1E293B] text-slate-300'
+                            : 'hover:bg-[#F8FAFC] text-[#0F172A]'
+                      }`}
+                    >
+                      <ToolIcon className="h-4 w-4 mt-0.5 text-[#2563EB] shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium leading-tight">{tool.label}</div>
+                        <div className={`text-xs leading-tight mt-0.5 ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                          {tool.subtitle}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </nav>
 
-        {/* Compact Navigation for Medium Screens (md - lg) */}
-        <div className="hidden md:flex lg:hidden items-center space-x-1">
-          <select
-            value={activeTab}
-            onChange={(e) => handleNavClick(e.target.value)}
-            className={`rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-100 border-slate-200 text-slate-900'
-            }`}
-          >
-            {navItems.map(item => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Operational Status Telemetry & Theme Switcher */}
-        <div className="flex items-center space-x-2">
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-2">
           
-          {/* Smartwatch Sync Trigger Button */}
-          <button
-            onClick={onOpenWearableModal}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
-              isDark 
-                ? 'bg-blue-950/60 border-blue-800/60 text-blue-400 hover:bg-blue-900/80' 
-                : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 shadow-xs'
-            }`}
-            title="Sync Smartwatch Telemetry"
-          >
-            <Watch className="h-4 w-4 text-blue-500 animate-pulse" />
-            <span className="hidden sm:inline">Wearables</span>
-          </button>
-
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
-              isDark 
-                ? 'bg-slate-800/80 border-slate-700 text-amber-400 hover:bg-slate-700' 
-                : 'bg-white border-[#E2E8F0] text-slate-700 hover:bg-slate-50 shadow-xs'
-            }`}
-            title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
-          >
-            {isDark ? (
-              <>
-                <Sun className="h-4 w-4 text-amber-400 fill-amber-400/20" />
-                <span className="hidden sm:inline text-slate-200">Light</span>
-              </>
-            ) : (
-              <>
-                <Moon className="h-4 w-4 text-slate-600 fill-slate-100" />
-                <span className="hidden sm:inline text-[#0F172A]">Dark</span>
-              </>
-            )}
-          </button>
-
-          <div className={`hidden sm:flex items-center space-x-2 rounded-xl px-3 py-1.5 border text-xs ${
-            isDark ? 'bg-emerald-950/40 border-emerald-800/40 text-emerald-400' : 'bg-emerald-50/80 border-emerald-200 text-emerald-700'
+          {/* System Status Indicator */}
+          <div className={`hidden lg:flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-xs font-medium ${
+            isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-[#F8FAFC] border-[#E2E8F0]'
           }`}>
             <span className="relative flex h-2 w-2">
               <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${
-                backendStatus ? 'bg-emerald-400' : 'bg-amber-400'
+                backendStatus ? 'bg-green-400' : 'bg-amber-400'
               }`}></span>
               <span className={`relative inline-flex h-2 w-2 rounded-full ${
-                backendStatus ? 'bg-emerald-500' : 'bg-amber-500'
+                backendStatus ? 'bg-green-500' : 'bg-amber-500'
               }`}></span>
             </span>
-            <span className="font-medium text-[11px]">
-              {backendStatus ? 'API Online' : 'Offline Mode'}
+            <span className={isDark ? 'text-slate-300' : 'text-[#0F172A]'}>
+              {backendStatus ? 'Online' : 'Offline'}
             </span>
           </div>
 
-          {mlStatus?.latencyMs && (
-            <div className={`hidden lg:flex items-center space-x-1.5 text-[11px] px-2.5 py-1.5 rounded-xl border font-mono ${
-              isDark ? 'bg-[#0F172A] border-[#1E293B] text-slate-200' : 'bg-slate-100 border-[#E2E8F0] text-[#0F172A]'
-            }`}>
-              <Zap className="h-3 w-3 text-[#2563EB] fill-[#2563EB]" />
-              <span>{mlStatus.latencyMs}ms</span>
-            </div>
-          )}
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg border transition-all ${
+              isDark 
+                ? 'bg-[#0F172A] border-[#1E293B] text-slate-300 hover:bg-[#1E293B]' 
+                : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B] hover:bg-white'
+            }`}
+            title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
 
-          <div className={`hidden 2xl:flex items-center space-x-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${
-            isDark ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/40' : 'bg-emerald-50 text-[#10B981] border-emerald-200'
-          }`}>
-            <ShieldCheck className="h-3 w-3 text-[#10B981]" />
-            <span>HIPAA</span>
-          </div>
-
-          {/* User Auth Profile Badge & Controls */}
+          {/* User Profile */}
           {isAuthenticated ? (
-            <div className="flex items-center space-x-2 pl-1 border-l border-slate-700/50">
-              <div 
-                onClick={() => handleNavClick('profile')}
-                className={`flex items-center space-x-2 rounded-xl px-2.5 py-1 border text-xs cursor-pointer hover:border-blue-500 transition-all ${
-                  isDark ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-slate-100 border-slate-200 text-slate-800'
+            <div className="relative" ref={userDropdownRef}>
+              <button
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border text-sm transition-all ${
+                  isDark ? 'bg-[#0F172A] border-[#1E293B] text-slate-200 hover:bg-[#1E293B]' : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#0F172A] hover:bg-white'
                 }`}
-                title="View My Profile"
               >
-                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-[10px]">
+                <div className="flex h-6 w-6 items-center justify-center rounded bg-[#2563EB] text-white font-semibold text-xs">
                   {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
                 </div>
-                <div className="hidden sm:block text-left">
-                  <div className="text-[11px] font-bold leading-tight truncate max-w-[110px]">
-                    {user?.fullName || user?.username}
-                  </div>
-                  <div className="text-[9px] font-mono text-blue-400 uppercase tracking-tighter">
-                    {user?.role ? user.role.replace('ROLE_', '') : 'USER'}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={logout}
-                className={`p-1.5 rounded-xl border text-xs font-semibold transition-all ${
-                  isDark ? 'bg-rose-950/40 border-rose-900/50 text-rose-400 hover:bg-rose-900/60' : 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100 shadow-xs'
-                }`}
-                title="Sign Out"
-              >
-                <LogOut className="h-4 w-4" />
+                <span className="hidden lg:inline font-medium">{user?.fullName?.split(' ')[0] || user?.username}</span>
+                <ChevronDown className="h-3.5 w-3.5" />
               </button>
+
+              {userDropdownOpen && (
+                <div className={`absolute right-0 mt-2 w-48 rounded-lg border shadow-lg p-1.5 z-50 ${
+                  isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
+                }`}>
+                  <div className={`px-3 py-2 border-b mb-1 ${isDark ? 'border-[#1E293B]' : 'border-[#E2E8F0]'}`}>
+                    <div className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                      {user?.fullName || user?.username}
+                    </div>
+                    <div className="text-xs text-[#2563EB] font-medium mt-0.5">
+                      {user?.role?.replace('ROLE_', '') || 'USER'}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleNavClick('profile')}
+                    className={`w-full text-left flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition ${
+                      isDark ? 'hover:bg-[#1E293B] text-slate-200' : 'hover:bg-[#F8FAFC] text-[#0F172A]'
+                    }`}
+                  >
+                    <UserCheck className="h-4 w-4 text-[#2563EB]" />
+                    <span>Profile</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setUserDropdownOpen(false);
+                    }}
+                    className={`w-full text-left flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition ${
+                      isDark ? 'hover:bg-red-950/30 text-red-400' : 'hover:bg-red-50 text-red-600'
+                    }`}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign out</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <button
               onClick={() => openAuthModal('login')}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold shadow-sm hover:from-blue-700 hover:to-indigo-700 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] text-white text-sm font-medium hover:bg-[#1D4ED8] transition-colors"
             >
-              <LogIn className="h-3.5 w-3.5" />
-              <span>Sign In</span>
+              <LogIn className="h-4 w-4" />
+              <span>Sign in</span>
             </button>
           )}
 
-          {/* Mobile Menu Toggle Button */}
+          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`md:hidden p-2 rounded-xl border ${
-              isDark ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-slate-100 border-slate-200 text-slate-700'
+            className={`md:hidden p-2 rounded-lg border ${
+              isDark ? 'bg-[#0F172A] border-[#1E293B] text-slate-200' : 'bg-[#F8FAFC] border-[#E2E8F0] text-[#0F172A]'
             }`}
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -229,39 +261,36 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
         </div>
       </div>
 
-      {/* Mobile Drawer Overlay */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className={`md:hidden border-t px-4 py-4 space-y-2 animate-fade-in ${
-          isDark ? 'bg-[#090D16] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
+        <div className={`md:hidden border-t px-4 py-3 space-y-1 ${
+          isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
         }`}>
-          <div className="grid grid-cols-1 gap-1.5">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavClick(item.id)}
-                  className={`flex items-center justify-between rounded-xl px-4 py-2.5 text-xs font-medium transition-colors ${
-                    isActive 
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-sm' 
-                      : isDark
-                        ? 'text-slate-300 bg-slate-900/60 border border-slate-800'
-                        : 'text-[#0F172A] bg-slate-50 border border-[#E2E8F0]'
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4 opacity-50" />
-                </button>
-              );
-            })}
-          </div>
+          {[...primaryNavItems, ...secondaryTools].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`w-full flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isActive 
+                    ? 'bg-[#2563EB] text-white' 
+                    : isDark
+                      ? 'text-slate-300 bg-[#1E293B]/50 hover:bg-[#1E293B]'
+                      : 'text-[#0F172A] bg-[#F8FAFC] hover:bg-slate-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </div>
+                <ChevronRight className="h-4 w-4 opacity-50" />
+              </button>
+            );
+          })}
         </div>
       )}
     </header>
   );
 }
-
