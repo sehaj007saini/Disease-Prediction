@@ -93,10 +93,10 @@ export default function CounterfactualSimulation() {
       </div>
 
       {/* Main Studio Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
         
         {/* Left Column: Parameter Sliders Studio (7 cols) */}
-        <div className="lg:col-span-7 bg-white dark:bg-[#0F172A] rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+        <div className="lg:col-span-7 bg-white dark:bg-[#0F172A] rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
             <div className="flex items-center space-x-2">
               <Sliders className="w-5 h-5 text-blue-600 dark:text-blue-400" />

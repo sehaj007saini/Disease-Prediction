@@ -214,11 +214,11 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Patient Demographic Intake Section */}
-        <div className="clinical-card p-6 border-[#E2E8F0] space-y-4">
-          <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3.5">
+        <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#E2E8F0] dark:border-slate-800 pb-3.5">
             <div className="flex items-center space-x-2">
-              <User className="h-4 w-4 text-[#2563EB]" />
-              <h3 className="text-xs font-bold text-[#0F172A] uppercase tracking-wider">Patient Identification & EHR Profile</h3>
+              <User className="h-4 w-4 text-[#2563EB] dark:text-blue-400" />
+              <h3 className="text-xs font-bold text-[#0F172A] dark:text-white uppercase tracking-wider">Patient Identification & EHR Profile</h3>
             </div>
             <button
               type="button"
@@ -226,7 +226,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
                 setCreateNewPatient(!createNewPatient);
                 setSelectedPatientId('');
               }}
-              className="text-xs text-[#2563EB] hover:underline flex items-center font-semibold"
+              className="text-xs text-[#2563EB] dark:text-blue-400 hover:underline flex items-center font-semibold"
             >
               <UserPlus className="h-3.5 w-3.5 mr-1" />
               <span>{createNewPatient ? 'Select Existing Patient' : '+ Register New Patient'}</span>
@@ -236,7 +236,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
           {!createNewPatient ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-[#64748B] mb-1">
+                <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">
                   Select Registered Patient
                 </label>
                 <select
@@ -255,7 +255,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
 
               {!selectedPatientId && (
                 <div>
-                  <label className="block text-xs font-bold text-[#64748B] mb-1">
+                  <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">
                     Patient Full Name
                   </label>
                   <input
@@ -271,7 +271,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-[#64748B] mb-1">Patient Full Name</label>
+                <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">Patient Full Name</label>
                 <input
                   type="text"
                   required
@@ -282,7 +282,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[#64748B] mb-1">Age (Years)</label>
+                <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">Age (Years)</label>
                 <input
                   type="number"
                   min="1"
@@ -293,7 +293,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[#64748B] mb-1">Biological Gender</label>
+                <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">Biological Gender</label>
                 <select
                   value={patientGender}
                   onChange={(e) => setPatientGender(e.target.value)}
@@ -309,17 +309,17 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
         </div>
 
         {/* Feature Vector Input Matrix */}
-        <div className="clinical-card p-6 border-[#E2E8F0] space-y-5">
+        <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800 space-y-5">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E2E8F0] pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E2E8F0] dark:border-slate-800 pb-4">
             <div>
               <div className="flex items-center space-x-2">
-                <Sliders className="h-4 w-4 text-[#2563EB]" />
-                <h3 className="text-xs font-bold text-[#0F172A] uppercase tracking-wider">
+                <Sliders className="h-4 w-4 text-[#2563EB] dark:text-blue-400" />
+                <h3 className="text-xs font-bold text-[#0F172A] dark:text-white uppercase tracking-wider">
                   Clinical Biomarker Feature Matrix
                 </h3>
               </div>
-              <p className="text-xs text-[#64748B] mt-0.5">
+              <p className="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">
                 Adjust clinical parameters or select a reference baseline below.
               </p>
             </div>
@@ -329,14 +329,14 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
               <button
                 type="button"
                 onClick={() => handlePresetLoad('normal')}
-                className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[11px] font-semibold text-[#10B981] hover:bg-emerald-100 transition-colors"
+                className="rounded-lg border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1.5 text-[11px] font-semibold text-[#10B981] dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors"
               >
                 Load Normal Baseline
               </button>
               <button
                 type="button"
                 onClick={() => handlePresetLoad('elevated')}
-                className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-100 transition-colors"
+                className="rounded-lg border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 text-[11px] font-semibold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors"
               >
                 Load Elevated Risk Vector
               </button>
@@ -347,14 +347,14 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
             {currentConfig.fields.map((field) => {
               const val = features[field.name] !== undefined ? features[field.name] : field.default;
               return (
-                <div key={field.name} className="space-y-2 bg-slate-50/70 p-4 rounded-xl border border-[#E2E8F0]">
+                <div key={field.name} className="space-y-2 bg-slate-50/70 dark:bg-slate-900/60 p-4 rounded-xl border border-[#E2E8F0] dark:border-slate-800">
                   <div className="flex items-center justify-between text-xs">
-                    <label className="font-bold text-[#0F172A]">
+                    <label className="font-bold text-[#0F172A] dark:text-slate-200">
                       {field.label}
                     </label>
                     <div className="flex items-center space-x-1.5 font-mono">
-                      <span className="text-[#2563EB] font-bold">{val}</span>
-                      <span className="text-[#64748B] text-[10px] uppercase">{field.unit}</span>
+                      <span className="text-[#2563EB] dark:text-blue-400 font-bold">{val}</span>
+                      <span className="text-[#64748B] dark:text-slate-400 text-[10px] uppercase">{field.unit}</span>
                     </div>
                   </div>
 
@@ -366,7 +366,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
                       step={field.max <= 1 ? "0.001" : "1"}
                       value={val}
                       onChange={(e) => handleInputChange(field.name, e.target.value)}
-                      className="w-full accent-[#2563EB] h-1.5 bg-slate-200 rounded-lg cursor-pointer"
+                      className="w-full accent-[#2563EB] h-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg cursor-pointer"
                     />
                     <input
                       type="number"
@@ -379,7 +379,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
                     />
                   </div>
 
-                  <div className="flex justify-between text-[10px] text-[#64748B] font-mono">
+                  <div className="flex justify-between text-[10px] text-[#64748B] dark:text-slate-400 font-mono">
                     <span>Min: {field.min}</span>
                     <span>Normal: {field.normal}</span>
                     <span>Max: {field.max}</span>
@@ -392,7 +392,7 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
         </div>
 
         {error && (
-          <div className="rounded-xl bg-rose-50 border border-rose-200 p-4 flex items-center space-x-3 text-rose-700 text-xs">
+          <div className="rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 p-4 flex items-center space-x-3 text-rose-700 dark:text-rose-300 text-xs">
             <AlertCircle className="h-5 w-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -403,14 +403,14 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
           <button
             type="button"
             onClick={() => handlePresetLoad('normal')}
-            className="px-4 py-2.5 rounded-xl border border-[#E2E8F0] bg-white text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50 text-xs font-semibold transition-colors"
+            className="px-4 py-2.5 rounded-xl border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900 text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold transition-colors"
           >
             Reset Vector
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex items-center space-x-2 rounded-xl bg-[#2563EB] px-6 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 hover:shadow-md disabled:opacity-50"
+            className="flex items-center space-x-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-2.5 text-xs font-semibold text-white shadow-md hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
           >
             {isSubmitting ? (
               <>

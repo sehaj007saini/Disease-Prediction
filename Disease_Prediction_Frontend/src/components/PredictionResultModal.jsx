@@ -48,42 +48,42 @@ export default function PredictionResultModal({ prediction, onClose, onNewPredic
   }));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-200">
       
-      <div className="relative w-full max-w-3xl bg-white p-6 sm:p-8 rounded-2xl border border-[#E2E8F0] shadow-2xl overflow-hidden text-[#0F172A] max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-3xl bg-white dark:bg-[#0F172A] p-6 sm:p-8 rounded-2xl border border-[#E2E8F0] dark:border-slate-800 shadow-2xl overflow-hidden text-[#0F172A] dark:text-slate-100 max-h-[90vh] overflow-y-auto">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-1.5 text-[#64748B] hover:text-[#0F172A] rounded-xl hover:bg-slate-100 transition-colors"
+          className="absolute top-5 right-5 p-1.5 text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <X className="h-5 w-5" />
         </button>
 
         {/* Header Metadata */}
         <div className="flex items-center space-x-2 mb-3">
-          <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-mono font-semibold text-[#2563EB] border border-blue-200">
+          <span className="rounded-lg bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 text-xs font-mono font-semibold text-[#2563EB] dark:text-blue-400 border border-blue-200 dark:border-blue-800/60">
             Diagnostic Report #{predictionId || 'REC-892'}
           </span>
-          <span className="text-xs text-[#64748B] font-mono">
+          <span className="text-xs text-[#64748B] dark:text-slate-400 font-mono">
             {predictionDate ? new Date(predictionDate).toLocaleString() : new Date().toLocaleString()}
           </span>
         </div>
 
         {/* Diagnostic Outcome Header */}
-        <div className="space-y-1.5 border-b border-[#E2E8F0] pb-4 mb-5">
-          <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Patient: {patientName}</p>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight font-heading">
+        <div className="space-y-1.5 border-b border-[#E2E8F0] dark:border-slate-800 pb-4 mb-5">
+          <p className="text-xs font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Patient: {patientName}</p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] dark:text-white tracking-tight font-heading">
             {predictedDisease}
           </h2>
-          <p className="text-xs text-[#2563EB] font-semibold">Target Classification: {diseaseTarget?.replace('_', ' ')?.toUpperCase()}</p>
+          <p className="text-xs text-[#2563EB] dark:text-blue-400 font-semibold">Target Classification: {diseaseTarget?.replace('_', ' ')?.toUpperCase()}</p>
         </div>
 
         {/* Metric Gauges Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           
           {/* Risk Level Badge */}
-          <div className="bg-slate-50 rounded-xl p-4 border border-[#E2E8F0] flex items-center space-x-3.5">
+          <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-4 border border-[#E2E8F0] dark:border-slate-800 flex items-center space-x-3.5">
             <div className={`flex h-11 w-11 items-center justify-center rounded-xl border ${getRiskBadgeClass()}`}>
               {riskLevel === 'Low' ? (
                 <CheckCircle2 className="h-5 w-5" />
@@ -92,8 +92,8 @@ export default function PredictionResultModal({ prediction, onClose, onNewPredic
               )}
             </div>
             <div>
-              <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider">Diagnostic Triage Risk</p>
-              <h4 className="text-base font-extrabold text-[#0F172A] uppercase mt-0.5">{riskLevel} Risk</h4>
+              <p className="text-[10px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">Diagnostic Triage Risk</p>
+              <h4 className="text-base font-extrabold text-[#0F172A] dark:text-white uppercase mt-0.5">{riskLevel} Risk</h4>
             </div>
           </div>
 

@@ -251,6 +251,82 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
 
       </div>
 
+      {/* Recent Diagnostic Activity Log */}
+      <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-[#0F172A] dark:text-white uppercase tracking-wider">Live Diagnostic Inference Activity</h3>
+            <p className="text-xs text-[#64748B] dark:text-slate-400 mt-0.5">Real-time model prediction event telemetry log</p>
+          </div>
+          <button 
+            onClick={() => onNewPrediction('diabetes')}
+            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center space-x-1"
+          >
+            <span>Run New Screening</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-slate-100 dark:border-slate-800 text-[11px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">
+                <th className="pb-3">Diagnostic Target</th>
+                <th className="pb-3">Model Engine</th>
+                <th className="pb-3">Risk Classification</th>
+                <th className="pb-3">Confidence Score</th>
+                <th className="pb-3">Inference Latency</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+              <tr>
+                <td className="py-3 flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="font-bold text-slate-800 dark:text-slate-200">Type-2 Diabetes</span>
+                </td>
+                <td className="py-3 font-mono text-[#64748B] dark:text-slate-400">RandomForestClassifier</td>
+                <td className="py-3">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60">
+                    High Risk (78%)
+                  </span>
+                </td>
+                <td className="py-3 font-mono text-emerald-600 dark:text-emerald-400 font-bold">96.8%</td>
+                <td className="py-3 font-mono text-slate-500">14ms</td>
+              </tr>
+              <tr>
+                <td className="py-3 flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-rose-500" />
+                  <span className="font-bold text-slate-800 dark:text-slate-200">Cardiovascular Risk</span>
+                </td>
+                <td className="py-3 font-mono text-[#64748B] dark:text-slate-400">GradientBoostingClassifier</td>
+                <td className="py-3">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+                    Low Risk (18%)
+                  </span>
+                </td>
+                <td className="py-3 font-mono text-emerald-600 dark:text-emerald-400 font-bold">95.4%</td>
+                <td className="py-3 font-mono text-slate-500">18ms</td>
+              </tr>
+              <tr>
+                <td className="py-3 flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="font-bold text-slate-800 dark:text-slate-200">Stroke / Cerebrovascular</span>
+                </td>
+                <td className="py-3 font-mono text-[#64748B] dark:text-slate-400">GradientBoostingClassifier</td>
+                <td className="py-3">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60">
+                    Severe Risk (84%)
+                  </span>
+                </td>
+                <td className="py-3 font-mono text-emerald-600 dark:text-emerald-400 font-bold">97.1%</td>
+                <td className="py-3 font-mono text-slate-500">12ms</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   );
 }
+

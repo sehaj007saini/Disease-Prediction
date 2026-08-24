@@ -89,7 +89,7 @@ export default function MedAssistCopilot() {
       </div>
 
       {/* Chat Container */}
-      <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-[520px]">
+      <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col h-[calc(100vh-270px)] min-h-[380px] max-h-[560px]">
         
         {/* Messages Scroll Area */}
         <div className="flex-1 p-6 overflow-y-auto space-y-4">

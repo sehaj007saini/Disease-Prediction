@@ -72,7 +72,7 @@ function MainApp() {
   };
 
   return (
-    <div className={`min-h-screen font-sans flex flex-col transition-colors duration-200 ${
+    <div className={`min-h-screen font-sans flex flex-col transition-colors duration-200 overflow-x-hidden ${
       theme === 'dark' ? 'bg-[#090D16] text-[#F8FAFC] selection:bg-[#2563EB] selection:text-white' : 'bg-[#F8FAFC] text-[#0F172A] selection:bg-[#2563EB] selection:text-white'
     }`}>
       
@@ -87,7 +87,7 @@ function MainApp() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 w-full">
+      <main className="flex-1 mx-auto max-w-[1536px] px-3 sm:px-6 lg:px-8 py-5 sm:py-6 w-full">
         
         {activeTab === 'dashboard' && (
           <Dashboard 

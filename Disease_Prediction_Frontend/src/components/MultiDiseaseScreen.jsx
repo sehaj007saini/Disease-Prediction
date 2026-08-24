@@ -73,10 +73,10 @@ export default function MultiDiseaseScreen() {
       </div>
 
       {/* Main Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
         
         {/* Left Form (5 cols) */}
-        <div className="lg:col-span-5 bg-white dark:bg-[#0F172A] rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="lg:col-span-5 bg-white dark:bg-[#0F172A] rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
           <h2 className="font-bold text-base text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
             Patient Physiological Profile
           </h2>

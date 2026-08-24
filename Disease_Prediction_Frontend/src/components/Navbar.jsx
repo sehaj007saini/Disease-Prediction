@@ -1,9 +1,13 @@
-import React from 'react';
-import { Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronRight 
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatus, theme, toggleTheme }) {
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
     { id: 'predict', label: 'Single Risk Predictor', icon: Stethoscope },
@@ -18,26 +22,31 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
 
   const isDark = theme === 'dark';
 
+  const handleNavClick = (id) => {
+    setActiveTab(id);
+    setMobileMenuOpen(false);
+  };
+
   return (
-    <header className={`sticky top-0 z-40 border-b transition-colors duration-200 backdrop-blur-md ${
-      isDark ? 'border-[#1E293B] bg-[#090D16]/90 shadow-md' : 'border-[#E2E8F0] bg-white/95 shadow-xs'
+    <header className={`sticky top-0 z-40 border-b transition-colors duration-200 backdrop-blur-xl ${
+      isDark ? 'border-[#1E293B] bg-[#090D16]/90 shadow-lg shadow-black/20' : 'border-[#E2E8F0] bg-white/90 shadow-xs'
     }`}>
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-[1536px] items-center justify-between px-3 sm:px-6 lg:px-8 py-2.5">
         
         {/* Brand Logo & Workstation Tag */}
         <div 
-          className="flex items-center space-x-3 cursor-pointer group" 
-          onClick={() => setActiveTab('dashboard')}
+          className="flex items-center space-x-3 cursor-pointer group shrink-0" 
+          onClick={() => handleNavClick('dashboard')}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2563EB] text-white shadow-sm group-hover:bg-blue-700 transition-colors">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-500 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
             <Activity className="h-5 w-5 stroke-[2.2]" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
               <span className={`text-lg font-bold tracking-tight font-heading ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
-                MediPulse <span className="text-[#2563EB] font-semibold">AI</span>
+                MediPulse <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent font-extrabold">AI</span>
               </span>
-              <span className={`rounded-md px-2 py-0.5 text-[10px] font-mono font-semibold border ${
+              <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-mono font-semibold border ${
                 isDark ? 'bg-blue-950/80 text-blue-300 border-blue-800/60' : 'bg-blue-50 text-[#2563EB] border-blue-200/80'
               }`}>
                 EHR v2.4
@@ -50,8 +59,8 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
         </div>
 
         {/* Primary Desktop Navigation */}
-        <nav className={`hidden md:flex items-center space-x-1 rounded-xl p-1.5 border transition-colors ${
-          isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-slate-100/80 border-[#E2E8F0]'
+        <nav className={`hidden lg:flex items-center space-x-1 rounded-2xl p-1 border transition-colors ${
+          isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-slate-100/90 border-[#E2E8F0]'
         }`}>
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -59,12 +68,12 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`flex items-center space-x-2 rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all ${
+                onClick={() => handleNavClick(item.id)}
+                className={`flex items-center space-x-1 rounded-xl px-2.5 py-1 text-[11px] xl:text-xs font-medium transition-all duration-150 whitespace-nowrap ${
                   isActive
-                    ? 'bg-[#2563EB] text-white font-semibold shadow-xs'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-sm scale-[1.02]'
                     : isDark 
-                      ? 'text-slate-400 hover:bg-slate-800 hover:text-white' 
+                      ? 'text-slate-400 hover:bg-slate-800/80 hover:text-white' 
                       : 'text-[#64748B] hover:bg-white hover:text-[#0F172A]'
                 }`}
               >
@@ -75,8 +84,25 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
           })}
         </nav>
 
+        {/* Compact Navigation for Medium Screens (md - lg) */}
+        <div className="hidden md:flex lg:hidden items-center space-x-1">
+          <select
+            value={activeTab}
+            onChange={(e) => handleNavClick(e.target.value)}
+            className={`rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-100 border-slate-200 text-slate-900'
+            }`}
+          >
+            {navItems.map(item => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Operational Status Telemetry & Theme Switcher */}
-        <div className="flex items-center space-x-2.5">
+        <div className="flex items-center space-x-2">
           
           {/* Theme Toggle Button */}
           <button
@@ -113,7 +139,7 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
               }`}></span>
             </span>
             <span className="font-medium text-[11px]">
-              {backendStatus ? 'Spring Boot API Online' : 'Offline Mode'}
+              {backendStatus ? 'API Online' : 'Offline Mode'}
             </span>
           </div>
 
@@ -126,7 +152,7 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
             </div>
           )}
 
-          <div className={`hidden xl:flex items-center space-x-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${
+          <div className={`hidden 2xl:flex items-center space-x-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${
             isDark ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/40' : 'bg-emerald-50 text-[#10B981] border-emerald-200'
           }`}>
             <ShieldCheck className="h-3 w-3 text-[#10B981]" />
@@ -164,40 +190,58 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
           ) : (
             <button
               onClick={() => openAuthModal('login')}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold shadow-xs hover:from-blue-700 hover:to-indigo-700 transition-all"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold shadow-sm hover:from-blue-700 hover:to-indigo-700 transition-all"
             >
               <LogIn className="h-3.5 w-3.5" />
               <span>Sign In</span>
             </button>
           )}
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={`md:hidden p-2 rounded-xl border ${
+              isDark ? 'bg-slate-800 border-slate-700 text-slate-200' : 'bg-slate-100 border-slate-200 text-slate-700'
+            }`}
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Navigation Row */}
-      <div className={`flex md:hidden overflow-x-auto px-3 py-2 border-t space-x-1.5 ${
-        isDark ? 'bg-[#090D16] border-[#1E293B]' : 'bg-slate-50 border-[#E2E8F0]'
-      }`}>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex items-center space-x-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors ${
-                isActive 
-                  ? 'bg-[#2563EB] text-white shadow-xs' 
-                  : isDark
-                    ? 'text-slate-400 bg-slate-900 border border-slate-800'
-                    : 'text-[#64748B] bg-white border border-[#E2E8F0]'
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Mobile Drawer Overlay */}
+      {mobileMenuOpen && (
+        <div className={`md:hidden border-t px-4 py-4 space-y-2 animate-fade-in ${
+          isDark ? 'bg-[#090D16] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
+        }`}>
+          <div className="grid grid-cols-1 gap-1.5">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`flex items-center justify-between rounded-xl px-4 py-2.5 text-xs font-medium transition-colors ${
+                    isActive 
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-sm' 
+                      : isDark
+                        ? 'text-slate-300 bg-slate-900/60 border border-slate-800'
+                        : 'text-[#0F172A] bg-slate-50 border border-[#E2E8F0]'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 opacity-50" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
+
