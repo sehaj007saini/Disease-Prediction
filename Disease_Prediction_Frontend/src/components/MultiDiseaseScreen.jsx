@@ -24,10 +24,27 @@ export default function MultiDiseaseScreen() {
     e?.preventDefault();
     setLoading(true);
     try {
+      // Ensure all numeric values are properly parsed and validated
+      const validatedFeatures = {
+        name: patientForm.name,
+        age: parseInt(patientForm.age) || 0,
+        gender: patientForm.gender,
+        hypertension: parseInt(patientForm.hypertension) || 0,
+        heart_disease: parseInt(patientForm.heart_disease) || 0,
+        smoking_history: patientForm.smoking_history || 'never',
+        bmi: parseFloat(patientForm.bmi) || 0,
+        HbA1c_level: parseFloat(patientForm.HbA1c_level) || 0,
+        blood_glucose_level: parseInt(patientForm.blood_glucose_level) || 0
+      };
+
+      console.log('Sending validated features to API:', validatedFeatures);
+
       const res = await api.runMultiDiseasePrediction({
         patientName: patientForm.name,
-        features: patientForm
+        features: validatedFeatures
       });
+
+      console.log('Received API response:', res);
       setResults(res);
     } catch (err) {
       console.error('Error running 5-disease screening:', err);
@@ -97,8 +114,15 @@ export default function MultiDiseaseScreen() {
                 <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Age</label>
                 <input
                   type="number"
+                  min="1"
+                  max="120"
                   value={patientForm.age}
-                  onChange={(e) => setPatientForm({ ...patientForm, age: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (val >= 1 && val <= 120) {
+                      setPatientForm({ ...patientForm, age: val });
+                    }
+                  }}
                   className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 dark:text-white font-medium"
                 />
               </div>
@@ -121,19 +145,37 @@ export default function MultiDiseaseScreen() {
                 <input
                   type="number"
                   step="0.1"
+                  min="3"
+                  max="15"
                   value={patientForm.HbA1c_level}
-                  onChange={(e) => setPatientForm({ ...patientForm, HbA1c_level: parseFloat(e.target.value) })}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (val >= 3 && val <= 15) {
+                      setPatientForm({ ...patientForm, HbA1c_level: val });
+                    }
+                  }}
                   className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 dark:text-white font-medium"
+                  title="Normal range: 4-6%. Prediabetes: 5.7-6.4%. Diabetes: >6.5%"
                 />
+                <span className="text-[10px] text-slate-400 mt-0.5 block">Range: 3-15% (Normal: 4-6%)</span>
               </div>
               <div>
                 <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Glucose (mg/dL)</label>
                 <input
                   type="number"
+                  min="50"
+                  max="400"
                   value={patientForm.blood_glucose_level}
-                  onChange={(e) => setPatientForm({ ...patientForm, blood_glucose_level: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (val >= 50 && val <= 400) {
+                      setPatientForm({ ...patientForm, blood_glucose_level: val });
+                    }
+                  }}
                   className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 dark:text-white font-medium"
+                  title="Normal fasting: 70-100 mg/dL. Prediabetes: 100-125. Diabetes: >126"
                 />
+                <span className="text-[10px] text-slate-400 mt-0.5 block">Range: 50-400 (Normal: 70-100)</span>
               </div>
             </div>
 
@@ -143,10 +185,19 @@ export default function MultiDiseaseScreen() {
                 <input
                   type="number"
                   step="0.1"
+                  min="10"
+                  max="60"
                   value={patientForm.bmi}
-                  onChange={(e) => setPatientForm({ ...patientForm, bmi: parseFloat(e.target.value) })}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (val >= 10 && val <= 60) {
+                      setPatientForm({ ...patientForm, bmi: val });
+                    }
+                  }}
                   className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 dark:text-white font-medium"
+                  title="Normal: 18.5-24.9. Overweight: 25-29.9. Obese: 30+"
                 />
+                <span className="text-[10px] text-slate-400 mt-0.5 block">Range: 10-60 (Normal: 18.5-25)</span>
               </div>
               <div>
                 <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">Hypertension</label>
@@ -182,8 +233,18 @@ export default function MultiDiseaseScreen() {
                 <span className="text-4xl font-black text-slate-900 dark:text-white">
                   {results?.overallRiskIndex || 51}%
                 </span>
-                <span className="text-xs font-bold text-amber-500 uppercase bg-amber-100 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full">
-                  Moderate Risk Profile
+                <span className={`text-xs font-bold uppercase px-2.5 py-0.5 rounded-full ${
+                  (results?.overallRiskIndex || 51) > 70 
+                    ? 'text-red-600 bg-red-100 dark:bg-red-950/60 dark:text-red-400'
+                    : (results?.overallRiskIndex || 51) > 50
+                    ? 'text-amber-500 bg-amber-100 dark:bg-amber-950/60'
+                    : 'text-green-600 bg-green-100 dark:bg-green-950/60 dark:text-green-400'
+                }`}>
+                  {(results?.overallRiskIndex || 51) > 70 
+                    ? 'High Risk Profile'
+                    : (results?.overallRiskIndex || 51) > 50
+                    ? 'Moderate Risk Profile'
+                    : 'Low Risk Profile'}
                 </span>
               </div>
             </div>
