@@ -9,17 +9,19 @@ public class UserDto {
     private String email;
     private String fullName;
     private String role;
+    private boolean enabled = true;
     private LocalDateTime createdAt;
 
     public UserDto() {
     }
 
-    public UserDto(Long id, String username, String email, String fullName, String role, LocalDateTime createdAt) {
+    public UserDto(Long id, String username, String email, String fullName, String role, boolean enabled, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.fullName = fullName;
         this.role = role;
+        this.enabled = enabled;
         this.createdAt = createdAt;
     }
 
@@ -61,6 +63,14 @@ public class UserDto {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public LocalDateTime getCreatedAt() {

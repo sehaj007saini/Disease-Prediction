@@ -10,6 +10,8 @@ import MultiDiseaseScreen from './components/MultiDiseaseScreen';
 import CounterfactualSimulation from './components/CounterfactualSimulation';
 import ModelGovernance from './components/ModelGovernance';
 import MedAssistCopilot from './components/MedAssistCopilot';
+import AdminConsole from './components/AdminConsole';
+import UserProfile from './components/UserProfile';
 import AuthModal from './components/AuthModal';
 import WearableSyncModal from './components/WearableSyncModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -141,6 +143,14 @@ function MainApp() {
           <BatchPrediction 
             onSelectPrediction={(result) => setActivePredictionResult(result)}
           />
+        )}
+
+        {activeTab === 'admin' && (
+          <AdminConsole />
+        )}
+
+        {activeTab === 'profile' && (
+          <UserProfile />
         )}
 
         {activeTab === 'copilot' && (

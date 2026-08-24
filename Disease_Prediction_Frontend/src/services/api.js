@@ -471,5 +471,52 @@ export const api = {
         }
       })
     );
+  },
+
+  // User & Admin Management APIs
+  async getAllUsers() {
+    return fetchWithFallback(
+      `${BASE_URL}/users`,
+      { method: 'GET' },
+      () => [
+        { id: 1, username: 'admin_doctor', email: 'admin@medipulse.ai', fullName: 'Dr. Arthur Vance (Chief Admin)', role: 'ROLE_ADMIN', enabled: true, createdAt: '2026-01-10T10:00:00' },
+        { id: 2, username: 'dr_vance', email: 'vance@hospital.org', fullName: 'Dr. Eleanor Vance', role: 'ROLE_DOCTOR', enabled: true, createdAt: '2026-02-14T11:30:00' },
+        { id: 3, username: 'dr_chen', email: 'chen@cardio.med', fullName: 'Dr. Marcus Chen', role: 'ROLE_DOCTOR', enabled: true, createdAt: '2026-03-01T09:15:00' },
+        { id: 4, username: 'researcher_kat', email: 'kat@ai-lab.org', fullName: 'Katya Volkov (Lead ML Researcher)', role: 'ROLE_RESEARCHER', enabled: true, createdAt: '2026-03-12T14:20:00' },
+        { id: 5, username: 'nurse_sarah', email: 'sarah@triage.org', fullName: 'Sarah Jenkins', role: 'ROLE_DOCTOR', enabled: false, createdAt: '2026-04-05T16:45:00' }
+      ]
+    );
+  },
+
+  async updateUserRole(userId, role) {
+    return fetchWithFallback(
+      `${BASE_URL}/users/${userId}/role`,
+      { method: 'PUT', body: JSON.stringify({ role }) },
+      () => ({ message: 'User role updated successfully', userId, role })
+    );
+  },
+
+  async updateUserStatus(userId, enabled) {
+    return fetchWithFallback(
+      `${BASE_URL}/users/${userId}/status`,
+      { method: 'PUT', body: JSON.stringify({ enabled }) },
+      () => ({ message: 'User status updated successfully', userId, enabled })
+    );
+  },
+
+  async deleteUser(userId) {
+    return fetchWithFallback(
+      `${BASE_URL}/users/${userId}`,
+      { method: 'DELETE' },
+      () => ({ message: 'User deleted successfully', userId })
+    );
+  },
+
+  async updateUserProfile(profileData) {
+    return fetchWithFallback(
+      `${BASE_URL}/users/profile`,
+      { method: 'PUT', body: JSON.stringify(profileData) },
+      () => ({ ...profileData, message: 'Profile updated successfully' })
+    );
   }
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronRight, Watch 
+  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronRight, Watch, UserCheck, Shield 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,6 +16,8 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
     { id: 'governance', label: 'XAI & Governance', icon: Cpu },
     { id: 'patients', label: 'Patient Registry', icon: Users },
     { id: 'batch', label: 'Batch Processing', icon: Layers },
+    { id: 'admin', label: 'Admin Console', icon: ShieldCheck },
+    { id: 'profile', label: 'My Profile', icon: UserCheck },
     { id: 'copilot', label: 'MedAssist AI', icon: Bot },
     { id: 'system', label: 'System Health', icon: Server },
   ];
@@ -176,9 +178,13 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
           {/* User Auth Profile Badge & Controls */}
           {isAuthenticated ? (
             <div className="flex items-center space-x-2 pl-1 border-l border-slate-700/50">
-              <div className={`flex items-center space-x-2 rounded-xl px-2.5 py-1 border text-xs ${
-                isDark ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-slate-100 border-slate-200 text-slate-800'
-              }`}>
+              <div 
+                onClick={() => handleNavClick('profile')}
+                className={`flex items-center space-x-2 rounded-xl px-2.5 py-1 border text-xs cursor-pointer hover:border-blue-500 transition-all ${
+                  isDark ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-slate-100 border-slate-200 text-slate-800'
+                }`}
+                title="View My Profile"
+              >
                 <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-[10px]">
                   {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
                 </div>
