@@ -188,7 +188,7 @@ function MainApp() {
         isDark={theme === 'dark'}
       />
 
-      {/* Enterprise SaaS Healthcare Footer */}
+      {/* Footer */}
       <footer className={`border-t py-5 text-xs transition-colors duration-200 mt-auto ${
         theme === 'dark' ? 'border-[#1E293B] bg-[#0F172A]/80 text-[#94A3B8]' : 'border-[#E2E8F0] bg-white text-[#64748B] shadow-xs'
       }`}>
@@ -197,8 +197,6 @@ function MainApp() {
             <span className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-[#0F172A]'}`}>
               MediPulse Multi-Disease Diagnostic Platform & XAI Suite
             </span>
-            <span className="text-[#94A3B8]">•</span>
-            <span>Final Year Major Engineering Capstone Project</span>
           </div>
           <div className="flex items-center space-x-4 text-[11px] font-mono">
             <span>REST API: <strong className="text-[#2563EB] font-medium">Port 8080</strong></span>
