@@ -1,12 +1,137 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line, CartesianGrid, PieChart, Pie, Legend, AreaChart, Area
 } from 'recharts';
 import { 
   Activity, AlertTriangle, Clock, TrendingUp, HeartPulse, Brain, Droplet, Stethoscope, ChevronRight, ArrowRight, AlertCircle, CheckCircle2, FileText, Calendar, Users, Zap, TrendingDown, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Dashboard({ analytics, theme = 'light', onNewPrediction, onSelectPatient, onOpenWearableModal }) {
+  const [priorityPatients, setPriorityPatients] = useState([]);
+  const [isLoadingPatients, setIsLoadingPatients] = useState(true);
+
+  useEffect(() => {
+    loadPriorityPatients();
+  }, [analytics]);
+
+  const loadPriorityPatients = async () => {
+    try {
+      setIsLoadingPatients(true);
+      
+      // Fetch all patients and all predictions
+      const [patientsData, predictionsData] = await Promise.all([
+        api.getAllPatients(),
+        api.getAnalytics()
+      ]);
+
+      // Create a map of patients with their latest high-risk predictions
+      const patientPredictionMap = new Map();
+      
+      // For each patient, we'll fetch their prediction history
+      for (const patient of patientsData) {
+        try {
+          const history = await api.getPatientHistory(patient.id);
+          if (history && history.length > 0) {
+            // Get the most recent high or critical risk prediction
+            const highRiskPredictions = history
+              .filter(p => p.riskLevel === 'High' || p.riskLevel === 'Critical' || p.riskLevel === 'Medium')
+              .sort((a, b) => new Date(b.predictionDate) - new Date(a.predictionDate));
+            
+            if (highRiskPredictions.length > 0) {
+              patientPredictionMap.set(patient.id, {
+                ...patient,
+                prediction: highRiskPredictions[0]
+              });
+            }
+          }
+        } catch (err) {
+          console.warn(`Could not load history for patient ${patient.id}`);
+        }
+      }
+
+      // Convert map to array and format for display
+      const priorityList = Array.from(patientPredictionMap.values())
+        .map(item => {
+          const pred = item.prediction;
+          const riskLevel = pred.riskLevel.toUpperCase();
+          
+          // Determine risk color
+          let riskColor = '';
+          if (riskLevel === 'CRITICAL') {
+            riskColor = 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950/30 dark:border-red-900/30';
+          } else if (riskLevel === 'HIGH') {
+            riskColor = 'text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-950/30 dark:border-orange-900/30';
+          } else {
+            riskColor = 'text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/30 dark:border-amber-900/30';
+          }
+
+          // Determine trend based on confidence score
+          let trend = 'stable';
+          if (pred.confidenceScore > 0.85) {
+            trend = 'up';
+          } else if (pred.confidenceScore < 0.75) {
+            trend = 'down';
+          }
+
+          // Format time ago
+          const timeAgo = formatTimeAgo(new Date(pred.predictionDate));
+
+          return {
+            id: item.id,
+            name: item.name,
+            age: item.age,
+            risk: riskLevel,
+            screening: formatDiseaseTarget(pred.diseaseTarget),
+            finding: formatFinding(pred),
+            updated: timeAgo,
+            trend: trend,
+            riskColor: riskColor
+          };
+        })
+        .slice(0, 4); // Show top 4 priority patients
+
+      setPriorityPatients(priorityList);
+    } catch (error) {
+      console.error('Error loading priority patients:', error);
+      // Fallback to empty list
+      setPriorityPatients([]);
+    } finally {
+      setIsLoadingPatients(false);
+    }
+  };
+
+  const formatTimeAgo = (date) => {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hr ago`;
+    if (seconds < 172800) return 'Yesterday';
+    return `${Math.floor(seconds / 86400)} days ago`;
+  };
+
+  const formatDiseaseTarget = (target) => {
+    const map = {
+      'diabetes': 'Diabetes',
+      'heart_disease': 'Cardiovascular',
+      'stroke': 'Stroke',
+      'kidney_disease': 'Renal',
+      'kidney': 'Renal',
+      'hypertension': 'Hypertension',
+      'parkinsons': 'Parkinsons'
+    };
+    return map[target] || target;
+  };
+
+  const formatFinding = (prediction) => {
+    // Extract key finding from prediction
+    if (prediction.predictedDisease) {
+      return prediction.predictedDisease;
+    }
+    return `Confidence: ${(prediction.confidenceScore * 100).toFixed(0)}%`;
+  };
+
   if (!analytics) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -61,53 +186,7 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
     { key: 'kidney_disease', title: 'Renal', subtitle: 'eGFR & metabolic indicators', icon: Activity, color: '#10B981' },
   ];
 
-  // Priority patients requiring attention
-  const priorityPatients = [
-    { 
-      id: 1, 
-      name: 'Sarah Mitchell', 
-      age: 58,
-      risk: 'CRITICAL', 
-      screening: 'Diabetes', 
-      finding: 'HbA1c: 9.2% (Critical)', 
-      updated: '12 min ago',
-      trend: 'up',
-      riskColor: 'text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950/30 dark:border-red-900/30'
-    },
-    { 
-      id: 2, 
-      name: 'James Rodriguez', 
-      age: 64,
-      risk: 'HIGH', 
-      screening: 'Cardiovascular', 
-      finding: 'Ejection Fraction: 35%', 
-      updated: '1 hr ago',
-      trend: 'up',
-      riskColor: 'text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-950/30 dark:border-orange-900/30'
-    },
-    { 
-      id: 3, 
-      name: 'Emily Chen', 
-      age: 52,
-      risk: 'HIGH', 
-      screening: 'Renal', 
-      finding: 'eGFR: 42 mL/min', 
-      updated: '2 hr ago',
-      trend: 'down',
-      riskColor: 'text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-950/30 dark:border-orange-900/30'
-    },
-    { 
-      id: 4, 
-      name: 'Michael Chang', 
-      age: 45,
-      risk: 'MODERATE', 
-      screening: 'Stroke', 
-      finding: 'BP: 145/92 mmHg', 
-      updated: 'Yesterday',
-      trend: 'stable',
-      riskColor: 'text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/30 dark:border-amber-900/30'
-    },
-  ];
+  // Priority patients loaded from API via useEffect and state
 
   const highRiskCount = Object.entries(analytics.riskLevelDistribution || {})
     .filter(([key]) => key === 'High' || key === 'Critical')
@@ -358,7 +437,7 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
                   Priority Patient Queue
                 </h3>
                 <p className={`text-sm mt-0.5 ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
-                  {priorityPatients.length} patients require immediate attention
+                  {isLoadingPatients ? 'Loading...' : `${priorityPatients.length} patients require immediate attention`}
                 </p>
               </div>
               <button
@@ -371,79 +450,100 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
             </div>
             
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${
-                    isDark 
-                      ? 'text-slate-400 border-[#1E293B] bg-[#0F172A]' 
-                      : 'text-[#64748B] border-[#E2E8F0] bg-[#F8FAFC]'
-                  }`}>
-                    <th className="px-6 py-3 text-left">Patient</th>
-                    <th className="px-6 py-3 text-left">Priority</th>
-                    <th className="px-6 py-3 text-left">Assessment</th>
-                    <th className="px-6 py-3 text-left">Finding</th>
-                    <th className="px-6 py-3 text-left">Trend</th>
-                    <th className="px-6 py-3 text-left">Updated</th>
-                    <th className="px-6 py-3 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className={`divide-y ${isDark ? 'divide-[#1E293B]' : 'divide-[#E2E8F0]'}`}>
-                  {priorityPatients.map((patient) => (
-                    <tr 
-                      key={patient.id}
-                      className={`transition-colors ${
-                        isDark ? 'hover:bg-[#1E293B]/50' : 'hover:bg-[#F8FAFC]'
-                      }`}
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold text-sm ${
-                            isDark ? 'bg-slate-700 text-slate-200' : 'bg-slate-200 text-slate-700'
-                          }`}>
-                            {patient.name.split(' ').map(n => n[0]).join('')}
-                          </div>
-                          <div>
-                            <div className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
-                              {patient.name}
-                            </div>
-                            <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
-                              {patient.age} years old
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold border ${patient.riskColor}`}>
-                          <div className="h-1.5 w-1.5 rounded-full bg-current"></div>
-                          {patient.risk}
-                        </span>
-                      </td>
-                      <td className={`px-6 py-4 text-sm ${isDark ? 'text-slate-300' : 'text-[#0F172A]'}`}>
-                        {patient.screening}
-                      </td>
-                      <td className={`px-6 py-4 text-sm ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
-                        {patient.finding}
-                      </td>
-                      <td className="px-6 py-4">
-                        {patient.trend === 'up' && <ArrowUpRight className="h-4 w-4 text-red-500" />}
-                        {patient.trend === 'down' && <ArrowDownRight className="h-4 w-4 text-amber-500" />}
-                        {patient.trend === 'stable' && <div className="h-0.5 w-4 bg-slate-400 rounded"></div>}
-                      </td>
-                      <td className={`px-6 py-4 text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
-                        {patient.updated}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={onSelectPatient}
-                          className="text-sm font-semibold text-cyan-500 hover:text-cyan-600 transition-colors"
-                        >
-                          Review
-                        </button>
-                      </td>
+              {isLoadingPatients ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="flex items-center gap-3">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-cyan-500 border-t-transparent"></div>
+                    <span className={`text-sm ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                      Loading patient data...
+                    </span>
+                  </div>
+                </div>
+              ) : priorityPatients.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 px-6">
+                  <CheckCircle2 className="h-12 w-12 text-green-500 mb-3" />
+                  <h4 className={`text-lg font-semibold mb-1 ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                    All Clear!
+                  </h4>
+                  <p className={`text-sm text-center ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                    No high-risk patients require immediate attention at this time.
+                  </p>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead>
+                    <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${
+                      isDark 
+                        ? 'text-slate-400 border-[#1E293B] bg-[#0F172A]' 
+                        : 'text-[#64748B] border-[#E2E8F0] bg-[#F8FAFC]'
+                    }`}>
+                      <th className="px-6 py-3 text-left">Patient</th>
+                      <th className="px-6 py-3 text-left">Priority</th>
+                      <th className="px-6 py-3 text-left">Assessment</th>
+                      <th className="px-6 py-3 text-left">Finding</th>
+                      <th className="px-6 py-3 text-left">Trend</th>
+                      <th className="px-6 py-3 text-left">Updated</th>
+                      <th className="px-6 py-3 text-right">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className={`divide-y ${isDark ? 'divide-[#1E293B]' : 'divide-[#E2E8F0]'}`}>
+                    {priorityPatients.map((patient) => (
+                      <tr 
+                        key={patient.id}
+                        className={`transition-colors ${
+                          isDark ? 'hover:bg-[#1E293B]/50' : 'hover:bg-[#F8FAFC]'
+                        }`}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold text-sm ${
+                              isDark ? 'bg-slate-700 text-slate-200' : 'bg-slate-200 text-slate-700'
+                            }`}>
+                              {patient.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div>
+                              <div className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                                {patient.name}
+                              </div>
+                              <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                                {patient.age} years old
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold border ${patient.riskColor}`}>
+                            <div className="h-1.5 w-1.5 rounded-full bg-current"></div>
+                            {patient.risk}
+                          </span>
+                        </td>
+                        <td className={`px-6 py-4 text-sm ${isDark ? 'text-slate-300' : 'text-[#0F172A]'}`}>
+                          {patient.screening}
+                        </td>
+                        <td className={`px-6 py-4 text-sm ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                          {patient.finding}
+                        </td>
+                        <td className="px-6 py-4">
+                          {patient.trend === 'up' && <ArrowUpRight className="h-4 w-4 text-red-500" />}
+                          {patient.trend === 'down' && <ArrowDownRight className="h-4 w-4 text-amber-500" />}
+                          {patient.trend === 'stable' && <div className="h-0.5 w-4 bg-slate-400 rounded"></div>}
+                        </td>
+                        <td className={`px-6 py-4 text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                          {patient.updated}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={onSelectPatient}
+                            className="text-sm font-semibold text-cyan-500 hover:text-cyan-600 transition-colors"
+                          >
+                            Review
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
 
