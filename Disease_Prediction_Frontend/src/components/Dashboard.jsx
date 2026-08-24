@@ -125,7 +125,7 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
             <h1 className={`text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
-              Good morning, Dr. Rivera 👋
+              Clinical Dashboard
             </h1>
             <p className={`text-sm mt-1 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
               <span className="flex items-center gap-1">
