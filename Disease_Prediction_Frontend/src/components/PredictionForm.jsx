@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Stethoscope, UserPlus, Send, RefreshCw, AlertCircle, Droplet, HeartPulse, Brain, Activity, CheckCircle2, User, Sliders
+  Stethoscope, UserPlus, Send, RefreshCw, AlertCircle, Droplet, HeartPulse, Brain, Activity, CheckCircle2, User, Sliders, Watch 
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -68,7 +68,7 @@ const DISEASE_PRESETS = {
   }
 };
 
-export default function PredictionForm({ initialTarget = 'diabetes', onPredictionComplete }) {
+export default function PredictionForm({ initialTarget = 'diabetes', onPredictionComplete, wearableTelemetry, onOpenWearableModal }) {
   const [target, setTarget] = useState(initialTarget);
   const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState('');
@@ -103,11 +103,30 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
     if (config) {
       const initialMap = {};
       config.fields.forEach(f => {
-        initialMap[f.name] = f.default;
+        initialMap[f.name] = wearableTelemetry && wearableTelemetry[f.name] !== undefined ? wearableTelemetry[f.name] : f.default;
       });
       setFeatures(initialMap);
     }
   }, [target]);
+
+  // Sync features when wearable telemetry updates
+  useEffect(() => {
+    if (wearableTelemetry) {
+      const config = DISEASE_PRESETS[target];
+      if (config) {
+        setFeatures(prev => {
+          const updated = { ...prev };
+          config.fields.forEach(f => {
+            if (wearableTelemetry[f.name] !== undefined) {
+              updated[f.name] = wearableTelemetry[f.name];
+            }
+          });
+          return updated;
+        });
+        if (wearableTelemetry.age) setPatientAge(wearableTelemetry.age);
+      }
+    }
+  }, [wearableTelemetry]);
 
   const handleInputChange = (fieldName, value) => {
     setFeatures(prev => ({
@@ -324,8 +343,16 @@ export default function PredictionForm({ initialTarget = 'diabetes', onPredictio
               </p>
             </div>
 
-            {/* Quick Test Presets */}
-            <div className="flex items-center space-x-2">
+            {/* Quick Test Presets & Wearable Sync */}
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={onOpenWearableModal}
+                className="rounded-lg border border-blue-200 dark:border-blue-800/60 bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors flex items-center space-x-1.5"
+              >
+                <Watch className="h-3.5 w-3.5 text-blue-500 animate-pulse" />
+                <span>Sync Smartwatch Data</span>
+              </button>
               <button
                 type="button"
                 onClick={() => handlePresetLoad('normal')}

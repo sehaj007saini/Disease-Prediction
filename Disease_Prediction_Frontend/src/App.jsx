@@ -11,6 +11,7 @@ import CounterfactualSimulation from './components/CounterfactualSimulation';
 import ModelGovernance from './components/ModelGovernance';
 import MedAssistCopilot from './components/MedAssistCopilot';
 import AuthModal from './components/AuthModal';
+import WearableSyncModal from './components/WearableSyncModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { api } from './services/api';
 
@@ -24,6 +25,8 @@ function MainApp() {
   const [backendStatus, setBackendStatus] = useState(false);
   const [initialPredictionTarget, setInitialPredictionTarget] = useState('diabetes');
   const [activePredictionResult, setActivePredictionResult] = useState(null);
+  const [isWearableModalOpen, setIsWearableModalOpen] = useState(false);
+  const [wearableTelemetry, setWearableTelemetry] = useState(null);
 
   const { isAuthModalOpen, closeAuthModal } = useAuth();
 
@@ -71,6 +74,11 @@ function MainApp() {
     refreshSystemStats(); // Refresh dashboard stats with new prediction count
   };
 
+  const handleApplyWearableTelemetry = (metrics) => {
+    setWearableTelemetry(metrics);
+    setActiveTab('predict');
+  };
+
   return (
     <div className={`min-h-screen font-sans flex flex-col transition-colors duration-200 overflow-x-hidden ${
       theme === 'dark' ? 'bg-[#090D16] text-[#F8FAFC] selection:bg-[#2563EB] selection:text-white' : 'bg-[#F8FAFC] text-[#0F172A] selection:bg-[#2563EB] selection:text-white'
@@ -84,6 +92,7 @@ function MainApp() {
         mlStatus={mlStatus}
         theme={theme}
         toggleTheme={toggleTheme}
+        onOpenWearableModal={() => setIsWearableModalOpen(true)}
       />
 
       {/* Main Container */}
@@ -95,6 +104,7 @@ function MainApp() {
             theme={theme}
             onNewPrediction={handleStartPredictionWithTarget}
             onSelectPatient={() => setActiveTab('patients')}
+            onOpenWearableModal={() => setIsWearableModalOpen(true)}
           />
         )}
 
@@ -102,6 +112,8 @@ function MainApp() {
           <PredictionForm 
             initialTarget={initialPredictionTarget}
             onPredictionComplete={handlePredictionComplete}
+            wearableTelemetry={wearableTelemetry}
+            onOpenWearableModal={() => setIsWearableModalOpen(true)}
           />
         )}
 
@@ -142,6 +154,13 @@ function MainApp() {
         )}
 
       </main>
+
+      {/* Wearable Smartwatch Telemetry Modal */}
+      <WearableSyncModal
+        isOpen={isWearableModalOpen}
+        onClose={() => setIsWearableModalOpen(false)}
+        onApplyTelemetry={handleApplyWearableTelemetry}
+      />
 
       {/* Global Diagnostic Result Modal */}
       {activePredictionResult && (

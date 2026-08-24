@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { 
-  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronRight 
+  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronRight, Watch 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatus, theme, toggleTheme }) {
+export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatus, theme, toggleTheme, onOpenWearableModal }) {
   const { user, isAuthenticated, logout, openAuthModal } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -104,6 +104,20 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
         {/* Operational Status Telemetry & Theme Switcher */}
         <div className="flex items-center space-x-2">
           
+          {/* Smartwatch Sync Trigger Button */}
+          <button
+            onClick={onOpenWearableModal}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
+              isDark 
+                ? 'bg-blue-950/60 border-blue-800/60 text-blue-400 hover:bg-blue-900/80' 
+                : 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 shadow-xs'
+            }`}
+            title="Sync Smartwatch Telemetry"
+          >
+            <Watch className="h-4 w-4 text-blue-500 animate-pulse" />
+            <span className="hidden sm:inline">Wearables</span>
+          </button>
+
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}

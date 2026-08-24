@@ -3,10 +3,10 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, CartesianGrid 
 } from 'recharts';
 import { 
-  Activity, Users, AlertTriangle, ShieldCheck, ArrowUpRight, PlusCircle, TrendingUp, HeartPulse, Brain, Droplet, Stethoscope, ChevronRight 
+  Activity, Users, AlertTriangle, ShieldCheck, ArrowUpRight, PlusCircle, TrendingUp, HeartPulse, Brain, Droplet, Stethoscope, ChevronRight, Watch, Heart, Flame 
 } from 'lucide-react';
 
-export default function Dashboard({ analytics, theme = 'light', onNewPrediction, onSelectPatient }) {
+export default function Dashboard({ analytics, theme = 'light', onNewPrediction, onSelectPatient, onOpenWearableModal }) {
   if (!analytics) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -67,13 +67,22 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
           </p>
         </div>
 
-        <button
-          onClick={() => onNewPrediction('diabetes')}
-          className="relative z-10 flex items-center space-x-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-xs font-bold text-white shadow-lg hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] transition-all duration-200 hover:shadow-blue-500/25 whitespace-nowrap"
-        >
-          <PlusCircle className="h-4 w-4" />
-          <span>New Diagnostic Test</span>
-        </button>
+        <div className="relative z-10 flex items-center space-x-3">
+          <button
+            onClick={onOpenWearableModal}
+            className="flex items-center space-x-2 rounded-2xl bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800/60 px-4 py-3.5 text-xs font-bold text-blue-600 dark:text-blue-400 shadow-md hover:bg-blue-50 dark:hover:bg-slate-800 transition-all duration-200 whitespace-nowrap"
+          >
+            <Watch className="h-4 w-4 text-blue-500 animate-pulse" />
+            <span>Sync Wearables</span>
+          </button>
+          <button
+            onClick={() => onNewPrediction('diabetes')}
+            className="flex items-center space-x-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3.5 text-xs font-bold text-white shadow-lg hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98] transition-all duration-200 hover:shadow-blue-500/25 whitespace-nowrap"
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span>New Diagnostic Test</span>
+          </button>
+        </div>
       </div>
 
       {/* 4 Visually Prominent Analytics Metric Cards */}
