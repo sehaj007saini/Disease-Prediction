@@ -22,6 +22,49 @@
     color: #F8FAFC;
   }
 
+  /* Ensure all text is visible in dark mode */
+  .dark {
+    color: #F8FAFC;
+  }
+
+  .dark p,
+  .dark span,
+  .dark div,
+  .dark label,
+  .dark td,
+  .dark th {
+    color: inherit;
+  }
+
+  /* Override any potentially invisible text colors in dark mode */
+  .dark .text-slate-900:not(.dark\:text-white):not([class*="dark:text-"]) {
+    color: #F8FAFC !important;
+  }
+
+  .dark .text-slate-800:not([class*="dark:text-"]) {
+    color: #E2E8F0 !important;
+  }
+
+  .dark .text-slate-700:not([class*="dark:text-"]) {
+    color: #CBD5E1 !important;
+  }
+
+  .dark .text-slate-600:not([class*="dark:text-"]) {
+    color: #94A3B8 !important;
+  }
+
+  .dark .text-gray-900:not([class*="dark:text-"]) {
+    color: #F8FAFC !important;
+  }
+
+  .dark .text-gray-800:not([class*="dark:text-"]) {
+    color: #E2E8F0 !important;
+  }
+
+  .dark .text-gray-700:not([class*="dark:text-"]) {
+    color: #CBD5E1 !important;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
     letter-spacing: -0.015em;
