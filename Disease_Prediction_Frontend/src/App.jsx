@@ -14,6 +14,10 @@ import AdminConsole from './components/AdminConsole';
 import UserProfile from './components/UserProfile';
 import AuthModal from './components/AuthModal';
 import WearableSyncModal from './components/WearableSyncModal';
+import RiskComparison from './components/RiskComparison';
+import SmartAlertSystem from './components/SmartAlertSystem';
+import RiskTrendForecasting from './components/RiskTrendForecasting';
+import PatientHealthTimeline from './components/PatientHealthTimeline';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { api } from './services/api';
 
@@ -142,6 +146,20 @@ function MainApp() {
         {activeTab === 'batch' && (
           <BatchPrediction 
             onSelectPrediction={(result) => setActivePredictionResult(result)}
+          />
+        )}
+
+        {activeTab === 'alerts' && (
+          <SmartAlertSystem 
+            theme={theme}
+            onPatientClick={(patientId) => setActiveTab('patients')}
+          />
+        )}
+
+        {activeTab === 'forecast' && (
+          <RiskTrendForecasting 
+            patientId={null}
+            theme={theme}
           />
         )}
 
