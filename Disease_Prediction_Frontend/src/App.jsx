@@ -18,6 +18,8 @@ import RiskComparison from './components/RiskComparison';
 import SmartAlertSystem from './components/SmartAlertSystem';
 import RiskTrendForecasting from './components/RiskTrendForecasting';
 import PatientHealthTimeline from './components/PatientHealthTimeline';
+import MedicationTracker from './components/MedicationTracker';
+import FamilyHealthTree from './components/FamilyHealthTree';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { api } from './services/api';
 
@@ -158,6 +160,20 @@ function MainApp() {
 
         {activeTab === 'forecast' && (
           <RiskTrendForecasting 
+            patientId={null}
+            theme={theme}
+          />
+        )}
+
+        {activeTab === 'medications' && (
+          <MedicationTracker 
+            patientId={null}
+            theme={theme}
+          />
+        )}
+
+        {activeTab === 'family' && (
+          <FamilyHealthTree 
             patientId={null}
             theme={theme}
           />

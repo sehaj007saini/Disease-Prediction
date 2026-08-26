@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronDown, ChevronRight, Watch, UserCheck, Shield, Settings, Bell, TrendingUp 
+  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronDown, ChevronRight, Watch, UserCheck, Shield, Settings, Bell, TrendingUp, Pill
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -40,6 +40,8 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
     { id: 'governance', label: 'Model Governance', subtitle: 'XAI metrics & explainability', icon: Cpu },
     { id: 'alerts', label: 'Smart Alerts', subtitle: 'Real-time patient notifications', icon: Bell },
     { id: 'forecast', label: 'Risk Forecasting', subtitle: 'Predictive health trends', icon: TrendingUp },
+    { id: 'medications', label: 'Medication Tracker', subtitle: 'Drug management & interactions', icon: Pill },
+    { id: 'family', label: 'Family Health Tree', subtitle: 'Genetic risk assessment', icon: Users },
     { id: 'copilot', label: 'Clinical Assistant', subtitle: 'AI-powered guidance', icon: Bot },
     { id: 'system', label: 'System Health', subtitle: 'Infrastructure monitoring', icon: Server },
     { id: 'admin', label: 'Administration', subtitle: 'User & access management', icon: Settings },
