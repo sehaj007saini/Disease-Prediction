@@ -203,25 +203,25 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className={`text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+            <h1 className={`text-2xl sm:text-3xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
               Clinical Dashboard
             </h1>
-            <p className={`text-sm mt-1 flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+            <p className={`text-xs sm:text-sm mt-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
               <span className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
                 {analytics.totalPatients} active patients
               </span>
-              <span className="text-slate-300 dark:text-slate-600">•</span>
+              <span className="hidden sm:inline text-slate-300 dark:text-slate-600">•</span>
               <span className="flex items-center gap-1 text-red-500 dark:text-red-400 font-medium">
                 <AlertCircle className="h-4 w-4" />
                 {totalAtRisk} require attention
               </span>
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             <button
               onClick={onOpenWearableModal}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium border transition-all ${
+              className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium border transition-all ${
                 isDark 
                   ? 'bg-[#1E293B] border-[#334155] text-slate-200 hover:bg-[#334155]' 
                   : 'bg-white border-[#E2E8F0] text-[#0F172A] hover:border-[#CBD5E1] shadow-sm'
@@ -232,7 +232,7 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
             </button>
             <button
               onClick={() => onNewPrediction('diabetes')}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-5 py-2.5 text-sm font-semibold text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/25"
+              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-5 py-2.5 text-sm font-semibold text-white hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/25"
             >
               <Stethoscope className="h-4 w-4" />
               <span>New Assessment</span>
@@ -470,33 +470,92 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
                   </p>
                 </div>
               ) : (
-                <table className="w-full">
-                  <thead>
-                    <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${
-                      isDark 
-                        ? 'text-slate-400 border-[#1E293B] bg-[#0F172A]' 
-                        : 'text-[#64748B] border-[#E2E8F0] bg-[#F8FAFC]'
-                    }`}>
-                      <th className="px-6 py-3 text-left">Patient</th>
-                      <th className="px-6 py-3 text-left">Priority</th>
-                      <th className="px-6 py-3 text-left">Assessment</th>
-                      <th className="px-6 py-3 text-left">Finding</th>
-                      <th className="px-6 py-3 text-left">Trend</th>
-                      <th className="px-6 py-3 text-left">Updated</th>
-                      <th className="px-6 py-3 text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDark ? 'divide-[#1E293B]' : 'divide-[#E2E8F0]'}`}>
+                <>
+                  {/* Desktop Table View */}
+                  <table className="w-full hidden md:table">
+                    <thead>
+                      <tr className={`text-xs font-semibold uppercase tracking-wider border-b ${
+                        isDark 
+                          ? 'text-slate-400 border-[#1E293B] bg-[#0F172A]' 
+                          : 'text-[#64748B] border-[#E2E8F0] bg-[#F8FAFC]'
+                      }`}>
+                        <th className="px-6 py-3 text-left">Patient</th>
+                        <th className="px-6 py-3 text-left">Priority</th>
+                        <th className="px-6 py-3 text-left">Assessment</th>
+                        <th className="px-6 py-3 text-left">Finding</th>
+                        <th className="px-6 py-3 text-left">Trend</th>
+                        <th className="px-6 py-3 text-left">Updated</th>
+                        <th className="px-6 py-3 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className={`divide-y ${isDark ? 'divide-[#1E293B]' : 'divide-[#E2E8F0]'}`}>
+                      {priorityPatients.map((patient) => (
+                        <tr 
+                          key={patient.id}
+                          className={`transition-colors ${
+                            isDark ? 'hover:bg-[#1E293B]/50' : 'hover:bg-[#F8FAFC]'
+                          }`}
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold text-sm ${
+                                isDark ? 'bg-slate-700 text-slate-200' : 'bg-slate-200 text-slate-700'
+                              }`}>
+                                {patient.name.split(' ').map(n => n[0]).join('')}
+                              </div>
+                              <div>
+                                <div className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
+                                  {patient.name}
+                                </div>
+                                <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                                  {patient.age} years old
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold border ${patient.riskColor}`}>
+                              <div className="h-1.5 w-1.5 rounded-full bg-current"></div>
+                              {patient.risk}
+                            </span>
+                          </td>
+                          <td className={`px-6 py-4 text-sm ${isDark ? 'text-slate-300' : 'text-[#0F172A]'}`}>
+                            {patient.screening}
+                          </td>
+                          <td className={`px-6 py-4 text-sm ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                            {patient.finding}
+                          </td>
+                          <td className="px-6 py-4">
+                            {patient.trend === 'up' && <ArrowUpRight className="h-4 w-4 text-red-500" />}
+                            {patient.trend === 'down' && <ArrowDownRight className="h-4 w-4 text-amber-500" />}
+                            {patient.trend === 'stable' && <div className="h-0.5 w-4 bg-slate-400 rounded"></div>}
+                          </td>
+                          <td className={`px-6 py-4 text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
+                            {patient.updated}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={onSelectPatient}
+                              className="text-sm font-semibold text-cyan-500 hover:text-cyan-600 transition-colors"
+                            >
+                              Review
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Mobile Card View */}
+                  <div className="md:hidden divide-y divide-[#E2E8F0] dark:divide-[#1E293B]">
                     {priorityPatients.map((patient) => (
-                      <tr 
+                      <div 
                         key={patient.id}
-                        className={`transition-colors ${
-                          isDark ? 'hover:bg-[#1E293B]/50' : 'hover:bg-[#F8FAFC]'
-                        }`}
+                        className={`p-4 transition-colors ${isDark ? 'hover:bg-[#1E293B]/50' : 'hover:bg-[#F8FAFC]'}`}
                       >
-                        <td className="px-6 py-4">
+                        <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <div className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold text-sm ${
+                            <div className={`h-12 w-12 rounded-full flex items-center justify-center font-semibold text-sm ${
                               isDark ? 'bg-slate-700 text-slate-200' : 'bg-slate-200 text-slate-700'
                             }`}>
                               {patient.name.split(' ').map(n => n[0]).join('')}
@@ -510,39 +569,39 @@ export default function Dashboard({ analytics, theme = 'light', onNewPrediction,
                               </div>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold border ${patient.riskColor}`}>
                             <div className="h-1.5 w-1.5 rounded-full bg-current"></div>
                             {patient.risk}
                           </span>
-                        </td>
-                        <td className={`px-6 py-4 text-sm ${isDark ? 'text-slate-300' : 'text-[#0F172A]'}`}>
-                          {patient.screening}
-                        </td>
-                        <td className={`px-6 py-4 text-sm ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
-                          {patient.finding}
-                        </td>
-                        <td className="px-6 py-4">
-                          {patient.trend === 'up' && <ArrowUpRight className="h-4 w-4 text-red-500" />}
-                          {patient.trend === 'down' && <ArrowDownRight className="h-4 w-4 text-amber-500" />}
-                          {patient.trend === 'stable' && <div className="h-0.5 w-4 bg-slate-400 rounded"></div>}
-                        </td>
-                        <td className={`px-6 py-4 text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>
-                          {patient.updated}
-                        </td>
-                        <td className="px-6 py-4 text-right">
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                          <div>
+                            <span className={`font-medium ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>Assessment:</span>
+                            <div className={`mt-0.5 ${isDark ? 'text-slate-300' : 'text-[#0F172A]'}`}>{patient.screening}</div>
+                          </div>
+                          <div>
+                            <span className={`font-medium ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>Finding:</span>
+                            <div className={`mt-0.5 ${isDark ? 'text-slate-300' : 'text-[#0F172A]'}`}>{patient.finding}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {patient.trend === 'up' && <ArrowUpRight className="h-4 w-4 text-red-500" />}
+                            {patient.trend === 'down' && <ArrowDownRight className="h-4 w-4 text-amber-500" />}
+                            {patient.trend === 'stable' && <div className="h-0.5 w-4 bg-slate-400 rounded"></div>}
+                            <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-[#64748B]'}`}>{patient.updated}</span>
+                          </div>
                           <button
                             onClick={onSelectPatient}
                             className="text-sm font-semibold text-cyan-500 hover:text-cyan-600 transition-colors"
                           >
-                            Review
+                            Review →
                           </button>
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </>
               )}
             </div>
           </div>
