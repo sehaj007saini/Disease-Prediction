@@ -267,9 +267,13 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className={`md:hidden border-t px-4 py-3 space-y-1 ${
+        <div className={`md:hidden border-t px-4 py-3 space-y-1 max-h-[70vh] overflow-y-auto ${
           isDark ? 'bg-[#0F172A] border-[#1E293B]' : 'bg-white border-[#E2E8F0]'
-        }`}>
+        }`} style={{ 
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch'
+        }}>
           {[...primaryNavItems, ...secondaryTools].map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;

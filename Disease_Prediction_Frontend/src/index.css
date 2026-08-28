@@ -258,6 +258,42 @@ input[type="range"] {
   background: #94A3B8;
 }
 
+/* Hide scrollbars on mobile devices */
+@media (max-width: 768px) {
+  body {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  body::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Opera */
+  }
+
+  /* Hide scrollbars in all containers on mobile */
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Allow overflow but hide scrollbar */
+  .overflow-auto,
+  .overflow-x-auto,
+  .overflow-y-auto {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .overflow-auto::-webkit-scrollbar,
+  .overflow-x-auto::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Legacy glass panel support (kept for other components) */
 .glass-panel {
   background: rgba(255, 255, 255, 0.9);
