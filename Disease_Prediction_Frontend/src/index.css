@@ -65,6 +65,30 @@
     color: #CBD5E1 !important;
   }
 
+  .dark .text-gray-600:not([class*="dark:text-"]) {
+    color: #94A3B8 !important;
+  }
+
+  /* Force visibility for all font weights in dark mode */
+  .dark .font-bold,
+  .dark .font-semibold,
+  .dark .font-medium {
+    color: inherit !important;
+  }
+
+  /* Ensure table text is visible */
+  .dark table td,
+  .dark table th {
+    color: #E2E8F0 !important;
+  }
+
+  /* Ensure all text elements inherit proper colors */
+  .dark a:not([class*="text-"]),
+  .dark button:not([class*="text-"]),
+  .dark input:not([class*="text-"]) {
+    color: inherit;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
     letter-spacing: -0.015em;
