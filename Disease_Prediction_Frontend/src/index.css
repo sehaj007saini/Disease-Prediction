@@ -53,6 +53,10 @@
     color: #94A3B8 !important;
   }
 
+  .dark .text-slate-500:not([class*="dark:text-"]) {
+    color: #94A3B8 !important;
+  }
+
   .dark .text-gray-900:not([class*="dark:text-"]) {
     color: #F8FAFC !important;
   }
@@ -66,6 +70,10 @@
   }
 
   .dark .text-gray-600:not([class*="dark:text-"]) {
+    color: #94A3B8 !important;
+  }
+
+  .dark .text-gray-500:not([class*="dark:text-"]) {
     color: #94A3B8 !important;
   }
 
@@ -86,6 +94,36 @@
   .dark a:not([class*="text-"]),
   .dark button:not([class*="text-"]),
   .dark input:not([class*="text-"]) {
+    color: inherit;
+  }
+
+  /* Force all generic text elements to be visible in dark mode */
+  .dark label {
+    color: #CBD5E1 !important;
+  }
+
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #F8FAFC !important;
+  }
+
+  /* Ensure input values are visible */
+  .dark input[type="text"],
+  .dark input[type="number"],
+  .dark input[type="email"],
+  .dark input[type="password"],
+  .dark select,
+  .dark textarea {
+    color: #F8FAFC !important;
+  }
+
+  /* Placeholder text in dark mode */
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #64748B !important;
+  }
+
+  /* Force visibility for any remaining text */
+  .dark * {
     color: inherit;
   }
 
