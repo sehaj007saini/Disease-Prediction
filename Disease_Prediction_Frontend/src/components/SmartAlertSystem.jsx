@@ -301,7 +301,7 @@ export default function SmartAlertSystem({ theme = 'light', onPatientClick }) {
                   <div className="flex flex-wrap items-center gap-3 text-xs mb-3">
                     <div className="flex items-center gap-1.5">
                       <User className="h-3.5 w-3.5" />
-                      <span className="font-semibold">{alert.patientName}</span>
+                      <span className={`font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{alert.patientName}</span>
                       <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>
                         ({alert.patientAge} yrs)
                       </span>

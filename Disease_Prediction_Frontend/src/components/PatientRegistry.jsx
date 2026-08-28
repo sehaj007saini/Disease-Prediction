@@ -138,14 +138,14 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
     <div className="space-y-6">
       
       {/* Header bar */}
-      <div className="clinical-card p-6 border-[#E2E8F0] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="clinical-card p-6 border-[#E2E8F0] dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
-          <div className="h-11 w-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#2563EB] shadow-xs">
+          <div className="h-11 w-11 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900 flex items-center justify-center text-[#2563EB] dark:text-blue-400 shadow-xs">
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-[#0F172A] tracking-tight">EHR Patient Master Registry</h2>
-            <p className="text-xs text-[#64748B]">Central database for clinical demographic profiles & diagnostic logs.</p>
+            <h2 className="text-xl font-bold text-[#0F172A] dark:text-white tracking-tight">EHR Patient Master Registry</h2>
+            <p className="text-xs text-[#64748B] dark:text-slate-400">Central database for clinical demographic profiles & diagnostic logs.</p>
           </div>
         </div>
 
@@ -180,26 +180,26 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
             className="w-full clinical-input pl-10 pr-4 py-2 text-xs"
           />
         </div>
-        <div className="text-xs text-[#64748B] font-mono bg-white px-3 py-1.5 rounded-xl border border-[#E2E8F0]">
-          Total Records: <span className="text-[#2563EB] font-bold">{filteredPatients.length}</span>
+        <div className="text-xs text-[#64748B] dark:text-slate-400 font-mono bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-[#E2E8F0] dark:border-slate-700">
+          Total Records: <span className="text-[#2563EB] dark:text-blue-400 font-bold">{filteredPatients.length}</span>
         </div>
       </div>
 
       {/* Patients Data Table */}
-      <div className="clinical-card border-[#E2E8F0] overflow-hidden">
+      <div className="clinical-card border-[#E2E8F0] dark:border-slate-800 overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-[#64748B] text-xs flex items-center justify-center space-x-2">
-            <RefreshCw className="h-4 w-4 animate-spin text-[#2563EB]" />
+          <div className="p-8 text-center text-[#64748B] dark:text-slate-400 text-xs flex items-center justify-center space-x-2">
+            <RefreshCw className="h-4 w-4 animate-spin text-[#2563EB] dark:text-blue-400" />
             <span>Querying PostgreSQL Patient Database...</span>
           </div>
         ) : filteredPatients.length === 0 ? (
-          <div className="p-8 text-center text-[#64748B] text-xs">
+          <div className="p-8 text-center text-[#64748B] dark:text-slate-400 text-xs">
             No patient records match the search filter.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50/90 text-[#64748B] uppercase tracking-wider border-b border-[#E2E8F0] text-[10px] font-mono">
+              <thead className="bg-slate-50/90 dark:bg-slate-900/80 text-[#64748B] dark:text-slate-400 uppercase tracking-wider border-b border-[#E2E8F0] dark:border-slate-800 text-[10px] font-mono">
                 <tr>
                   <th className="py-3.5 px-4">EHR ID</th>
                   <th className="py-3.5 px-4">Patient Name</th>
@@ -208,50 +208,50 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
                   <th className="py-3.5 px-4 text-right">Clinical Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E2E8F0]">
+              <tbody className="divide-y divide-[#E2E8F0] dark:divide-slate-800">
                 {filteredPatients.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-[#2563EB]">
+                  <tr key={p.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/50 transition-colors">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[#2563EB] dark:text-blue-400">
                       PAT-{p.id}
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-[#0F172A]">
+                    <td className="py-3.5 px-4 font-bold text-[#0F172A] dark:text-white">
                       {p.name}
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center space-x-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-mono text-[#0F172A] border border-[#E2E8F0]">
+                      <span className="inline-flex items-center space-x-1 rounded-md bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-mono text-[#0F172A] dark:text-slate-200 border border-[#E2E8F0] dark:border-slate-700">
                         <span>{p.gender}</span>
                         <span>•</span>
                         <span>{p.age} yrs</span>
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-[#64748B]">
+                    <td className="py-3.5 px-4 text-[#64748B] dark:text-slate-400">
                       {p.email || 'N/A'}
                     </td>
                     <td className="py-3.5 px-4 text-right space-x-2">
                       <button
                         onClick={() => onRunPredictionForPatient(p.id)}
-                        className="inline-flex items-center space-x-1 px-3 py-1 rounded-lg bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 transition-colors text-[11px] font-semibold"
+                        className="inline-flex items-center space-x-1 px-3 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-[#2563EB] dark:text-blue-400 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-950 transition-colors text-[11px] font-semibold"
                       >
                         <Stethoscope className="h-3 w-3" />
                         <span>Run Test</span>
                       </button>
                       <button
                         onClick={() => handleViewHistory(p)}
-                        className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0F172A] hover:bg-slate-100 transition-colors"
+                        className="p-1.5 rounded-lg text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         title="View Diagnostic Log History"
                       >
                         <History className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleOpenEdit(p)}
-                        className="p-1.5 rounded-lg text-[#64748B] hover:text-[#0F172A] hover:bg-slate-100 transition-colors"
+                        className="p-1.5 rounded-lg text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         title="Edit Record"
                       >
                         <Edit2 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDeletePatient(p.id)}
-                        className="p-1.5 rounded-lg text-[#64748B] hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                        className="p-1.5 rounded-lg text-[#64748B] dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
                         title="Delete Record"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -268,19 +268,19 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
       {/* Modal: Create/Edit Patient */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md bg-white rounded-2xl p-6 border border-[#E2E8F0] shadow-xl space-y-4 text-[#0F172A]">
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3.5">
-              <h3 className="text-base font-bold text-[#0F172A]">
+          <div className="relative w-full max-w-md bg-white dark:bg-[#0F172A] rounded-2xl p-6 border border-[#E2E8F0] dark:border-slate-800 shadow-xl space-y-4 text-[#0F172A] dark:text-slate-100">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] dark:border-slate-800 pb-3.5">
+              <h3 className="text-base font-bold text-[#0F172A] dark:text-white">
                 {editingPatient ? `Edit Patient PAT-${editingPatient.id}` : 'Register New Patient Record'}
               </h3>
-              <button onClick={() => setIsCreateModalOpen(false)} className="text-[#64748B] hover:text-[#0F172A]">
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-white">
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             <form onSubmit={handleSavePatient} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-[#64748B] mb-1">Full Name</label>
+                <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">Full Name</label>
                 <input
                   type="text"
                   required
@@ -292,7 +292,7 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-[#64748B] mb-1">Age</label>
+                  <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">Age</label>
                   <input
                     type="number"
                     min="1"
@@ -304,7 +304,7 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[#64748B] mb-1">Gender</label>
+                  <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">Gender</label>
                   <select
                     value={formData.gender}
                     onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
@@ -318,7 +318,7 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#64748B] mb-1">Email Address</label>
+                <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">Email Address</label>
                 <input
                   type="email"
                   value={formData.email}
@@ -328,7 +328,7 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#64748B] mb-1">Phone Number</label>
+                <label className="block text-xs font-bold text-[#64748B] dark:text-slate-400 mb-1">Phone Number</label>
                 <input
                   type="text"
                   value={formData.phone}
@@ -341,7 +341,7 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-[#E2E8F0] text-[#64748B] text-xs font-semibold hover:text-[#0F172A] hover:bg-slate-50 transition-colors"
+                  className="px-4 py-2 rounded-xl border border-[#E2E8F0] dark:border-slate-700 text-[#64748B] dark:text-slate-400 text-xs font-semibold hover:text-[#0F172A] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 >
                   Cancel
                 </button>
@@ -360,44 +360,44 @@ export default function PatientRegistry({ onRunPredictionForPatient }) {
       {/* Modal: Patient Diagnostic History */}
       {historyPatient && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-xl bg-white rounded-2xl p-6 border border-[#E2E8F0] shadow-xl space-y-4 max-h-[85vh] flex flex-col text-[#0F172A]">
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3.5">
+          <div className="relative w-full max-w-xl bg-white dark:bg-[#0F172A] rounded-2xl p-6 border border-[#E2E8F0] dark:border-slate-800 shadow-xl space-y-4 max-h-[85vh] flex flex-col text-[#0F172A] dark:text-slate-100">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] dark:border-slate-800 pb-3.5">
               <div>
-                <h3 className="text-base font-bold text-[#0F172A]">
+                <h3 className="text-base font-bold text-[#0F172A] dark:text-white">
                   Diagnostic Log History: {historyPatient.name}
                 </h3>
-                <p className="text-xs text-[#2563EB] font-mono">PAT-{historyPatient.id}</p>
+                <p className="text-xs text-[#2563EB] dark:text-blue-400 font-mono">PAT-{historyPatient.id}</p>
               </div>
-              <button onClick={() => setHistoryPatient(null)} className="text-[#64748B] hover:text-[#0F172A]">
+              <button onClick={() => setHistoryPatient(null)} className="text-[#64748B] dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-white">
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-3 pr-1">
               {loadingHistory ? (
-                <div className="p-6 text-center text-xs text-[#64748B] flex items-center justify-center space-x-2">
-                  <RefreshCw className="h-4 w-4 animate-spin text-[#2563EB]" />
+                <div className="p-6 text-center text-xs text-[#64748B] dark:text-slate-400 flex items-center justify-center space-x-2">
+                  <RefreshCw className="h-4 w-4 animate-spin text-[#2563EB] dark:text-blue-400" />
                   <span>Fetching diagnostic logs...</span>
                 </div>
               ) : patientHistory.length === 0 ? (
-                <div className="p-6 text-center text-xs text-[#64748B]">
+                <div className="p-6 text-center text-xs text-[#64748B] dark:text-slate-400">
                   No historical prediction logs found for this patient.
                 </div>
               ) : (
                 patientHistory.map((item) => (
-                  <div key={item.id} className="p-4 rounded-xl bg-slate-50 border border-[#E2E8F0] text-xs space-y-1.5">
+                  <div key={item.id} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-[#E2E8F0] dark:border-slate-800 text-xs space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#0F172A] uppercase tracking-wide">{item.diseaseTarget}</span>
+                      <span className="font-bold text-[#0F172A] dark:text-white uppercase tracking-wide">{item.diseaseTarget}</span>
                       <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold font-mono uppercase ${
-                        item.riskLevel === 'Low' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                        item.riskLevel === 'Medium' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                        'bg-rose-50 text-rose-700 border border-rose-200'
+                        item.riskLevel === 'Low' ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' :
+                        item.riskLevel === 'Medium' ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800' :
+                        'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
                       }`}>
                         {item.riskLevel} Risk
                       </span>
                     </div>
-                    <div className="text-[#64748B] text-[11px] flex justify-between">
-                      <span>Outcome: <strong className="text-[#0F172A]">{item.predictedDisease}</strong></span>
+                    <div className="text-[#64748B] dark:text-slate-400 text-[11px] flex justify-between">
+                      <span>Outcome: <strong className="text-[#0F172A] dark:text-white">{item.predictedDisease}</strong></span>
                       <span className="font-mono">Confidence: {(item.confidenceScore * 100).toFixed(1)}%</span>
                     </div>
                   </div>

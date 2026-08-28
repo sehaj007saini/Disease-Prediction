@@ -149,7 +149,7 @@ export default function BatchPrediction({ onSelectPrediction }) {
               {(Array.isArray(batchResult) ? batchResult : batchResult.results || []).map((res, i) => (
                 <div key={i} className="p-4 rounded-xl bg-slate-50 border border-[#E2E8F0] text-xs space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#0F172A]">{res.patientName || `Patient #${i+1}`}</span>
+                    <span className="font-bold text-[#0F172A] dark:text-white">{res.patientName || `Patient #${i+1}`}</span>
                     <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase ${
                       res.riskLevel === 'Low' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
                       res.riskLevel === 'Medium' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
