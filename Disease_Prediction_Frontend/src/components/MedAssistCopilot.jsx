@@ -1,18 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Send, User, Sparkles, AlertCircle, Heart, Shield, RefreshCcw } from 'lucide-react';
+import { Bot, Send, User, Sparkles, AlertCircle, Heart, Shield, RefreshCcw, Key } from 'lucide-react';
+import { geminiService } from '../services/geminiService';
 
 export default function MedAssistCopilot() {
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'bot',
-      text: 'Hello! I am MedAssist AI, your clinical copilot. Ask me about physiological normal ranges, disease risk metrics, ADA/AHA clinical guidelines, or preventative lifestyle optimizations.',
+      text: 'Hello! I am MedAssist AI, your clinical copilot powered by Google Gemini. Ask me about physiological normal ranges, disease risk metrics, ADA/AHA clinical guidelines, or preventative lifestyle optimizations.',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showApiKeyInfo, setShowApiKeyInfo] = useState(false);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    // Check if Gemini API key is configured
+    const hasApiKey = !!import.meta.env.VITE_GEMINI_API_KEY;
+    if (!hasApiKey) {
+      setShowApiKeyInfo(true);
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -29,7 +39,7 @@ export default function MedAssistCopilot() {
     'AHA guidelines for Stage 1 Hypertension'
   ];
 
-  const handleSend = (textToSend) => {
+  const handleSend = async (textToSend) => {
     const text = textToSend || input;
     if (!text.trim()) return;
 
@@ -44,33 +54,66 @@ export default function MedAssistCopilot() {
     if (!textToSend) setInput('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      let botResponse = 'Based on clinical guidelines (ADA/AHA/KDIGO), maintaining physiological parameters within standard reference ranges significantly lowers multi-disease risk.';
-      const lower = text.toLowerCase();
-
-      if (lower.includes('hba1c') || lower.includes('diabetes')) {
-        botResponse = 'An HbA1c level of 7.2% indicates diabetic range (≥6.5% standard threshold). According to American Diabetes Association (ADA) guidelines, targeted lifestyle modifications and glycemic control (targeting HbA1c < 7.0%) reduce microvascular complications by up to 37%.';
-      } else if (lower.includes('stroke')) {
-        botResponse = 'To reduce cerebrovascular stroke risk by 30-40%: 1) Maintain blood pressure < 120/80 mmHg, 2) Engage in 150 mins/week moderate aerobic exercise, 3) Eliminate active tobacco smoking, and 4) Follow a low-sodium Mediterranean/DASH diet.';
-      } else if (lower.includes('glucose') || lower.includes('normal range')) {
-        botResponse = 'Standard Clinical Reference Ranges: Fasting Blood Glucose: 70–99 mg/dL (Normal), 100–125 mg/dL (Impaired / Pre-diabetic), ≥126 mg/dL (Diabetic indicator across 2 tests).';
-      } else if (lower.includes('hypertension') || lower.includes('aha')) {
-        botResponse = 'According to American Heart Association (AHA) guidelines, Stage 1 Hypertension is defined as Systolic 130–139 mmHg or Diastolic 80–89 mmHg. First-line management includes DASH diet, sodium reduction (<2,300 mg/day), and weight management.';
-      }
+    try {
+      // Get conversation history for context (last 5 messages)
+      const conversationHistory = messages.slice(-5);
+      
+      // Call Gemini AI service
+      const response = await geminiService.sendMessage(text, conversationHistory);
 
       const botMsg = {
         id: Date.now() + 1,
         sender: 'bot',
-        text: botResponse,
+        text: response,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
+      
       setMessages(prev => [...prev, botMsg]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMsg = {
+        id: Date.now() + 1,
+        sender: 'bot',
+        text: 'I apologize, but I encountered an error processing your request. Please try again or check your API configuration.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
       setIsTyping(false);
-    }, 900);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fadeIn">
+      {/* API Key Info Banner */}
+      {showApiKeyInfo && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 flex items-start gap-3">
+          <Key className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-200 mb-1">
+              Gemini API Key Not Configured
+            </h3>
+            <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed mb-2">
+              To enable full AI-powered responses, add your Google Gemini API key to the <code className="bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded">.env</code> file as <code className="bg-amber-100 dark:bg-amber-900/40 px-1.5 py-0.5 rounded">VITE_GEMINI_API_KEY</code>
+            </p>
+            <div className="text-xs text-amber-600 dark:text-amber-400">
+              <strong>How to get an API key:</strong>
+              <ol className="list-decimal ml-4 mt-1 space-y-0.5">
+                <li>Visit <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-700">Google AI Studio</a></li>
+                <li>Click "Get API Key" and create a new key</li>
+                <li>Add to <code className="bg-amber-100 dark:bg-amber-900/40 px-1 py-0.5 rounded">.env</code> file and restart the dev server</li>
+              </ol>
+            </div>
+            <button
+              onClick={() => setShowApiKeyInfo(false)}
+              className="mt-2 text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium"
+            >
+              Dismiss (using fallback responses)
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-3xl p-6 shadow-xl border border-blue-800/40 flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -79,7 +122,7 @@ export default function MedAssistCopilot() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">MedAssist AI Clinical Assistant</h1>
-            <p className="text-xs text-blue-200">Interactive Clinical Knowledge Base & Patient Consultation Copilot</p>
+            <p className="text-xs text-blue-200">Powered by Google Gemini • Interactive Clinical Knowledge Base</p>
           </div>
         </div>
         <div className="hidden sm:flex items-center space-x-2 text-xs text-emerald-400 font-medium bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
@@ -103,7 +146,7 @@ export default function MedAssistCopilot() {
                   ? 'bg-blue-600 text-white font-medium rounded-tr-none'
                   : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200/60 dark:border-slate-700/50'
               }`}>
-                <p>{msg.text}</p>
+                <p className="whitespace-pre-wrap">{msg.text}</p>
                 <span className={`block text-[10px] mt-2 text-right ${msg.sender === 'user' ? 'text-blue-200' : 'text-slate-400'}`}>
                   {msg.timestamp}
                 </span>
@@ -146,14 +189,14 @@ export default function MedAssistCopilot() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
             placeholder="Ask MedAssist AI clinical assistant..."
             className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             onClick={() => handleSend()}
-            disabled={!input.trim()}
-            className="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-md transition disabled:opacity-40"
+            disabled={!input.trim() || isTyping}
+            className="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-md transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Send className="w-4 h-4" />
           </button>
