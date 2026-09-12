@@ -22,7 +22,6 @@ target/
 .classpath
 .settings/
 .factorypath
-.agents/
 
 # Python Virtual Environments & Caches
 .venv/
@@ -50,3 +49,10 @@ __pycache__/
 application.properties
 **/application.properties
 !**/application.properties.example
+
+# Temporary documentation files (keep only essential docs)
+AGENTS.md
+REDESIGN_*.md
+ENHANCED_*.md
+*_CHECKLIST.md
+*_SUMMARY.md
