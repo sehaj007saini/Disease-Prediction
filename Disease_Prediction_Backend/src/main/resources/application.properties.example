@@ -20,6 +20,10 @@ spring.jpa.properties.hibernate.format_sql=true
 ml.service.url=http://localhost:8000/predict
 ml.service.timeout.ms=5000
 
+# Google Gemini AI Configuration
+gemini.api.key=${GEMINI_API_KEY:your_gemini_api_key_here}
+gemini.api.url=https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent
+
 # Jackson JSON Settings
 spring.jackson.serialization.write-dates-as-timestamps=false
 
