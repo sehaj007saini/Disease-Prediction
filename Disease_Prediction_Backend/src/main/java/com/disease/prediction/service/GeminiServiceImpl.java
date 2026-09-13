@@ -145,8 +145,8 @@ public class GeminiServiceImpl implements GeminiService {
             
             if (candidates.isArray() && candidates.size() > 0) {
                 JsonNode firstCandidate = candidates.get(0);
-                JsonNode content = firstCandidate.path("content");
-                JsonNode parts = content.path("parts");
+                JsonNode contentNode = firstCandidate.path("content");
+                JsonNode parts = contentNode.path("parts");
                 
                 if (parts.isArray() && parts.size() > 0) {
                     return parts.get(0).path("text").asText();
