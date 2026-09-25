@@ -534,19 +534,19 @@ export const api = {
           
           if (customKey && customKey.trim().length > 10) {
             const cleanKey = customKey.trim();
-            const modelsToTry = [
-              'gemini-2.0-flash',
-              'gemini-1.5-flash-latest',
-              'gemini-1.5-flash',
-              'gemini-1.5-pro',
-              'gemini-2.5-flash'
+            const endpointsToTry = [
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(cleanKey)}`,
+              `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(cleanKey)}`,
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${encodeURIComponent(cleanKey)}`,
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${encodeURIComponent(cleanKey)}`,
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${encodeURIComponent(cleanKey)}`
             ];
             
             let lastErrorMsg = '';
+            let hit404Count = 0;
 
-            for (const modelName of modelsToTry) {
+            for (const geminiUrl of endpointsToTry) {
               try {
-                const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(cleanKey)}`;
                 const promptText = `You are MedAssist AI, an expert clinical assistant. Answer concisely and accurately based on medical guidelines (ADA/AHA/KDIGO).\nUser Question: ${message}`;
                 
                 const res = await fetch(geminiUrl, {
@@ -566,22 +566,26 @@ export const api = {
                 } else {
                   const errData = await res.json().catch(() => ({}));
                   lastErrorMsg = errData.error?.message || `HTTP ${res.status}`;
-                  // If 404 (model not found), continue loop to try next model in list
                   if (res.status === 404) {
+                    hit404Count++;
                     continue;
                   }
-                  // For non-404 errors (like 403 Invalid Key), break early and show error
                   break;
                 }
               } catch (clientErr) {
-                console.error(`Direct Gemini Client API Call (${modelName}) failed:`, clientErr);
+                console.error('Direct Gemini Client API Call failed:', clientErr);
                 lastErrorMsg = clientErr.message;
               }
             }
 
+            let userFriendlyErr = lastErrorMsg;
+            if (hit404Count > 0 && hit404Count === endpointsToTry.length) {
+              userFriendlyErr = `Google returned 404 (Model Not Found) across all API endpoints.\n\nThis usually occurs when:\n1. Your API key was generated in standard Google Cloud Console instead of Google AI Studio.\n2. The 'Generative Language API' is disabled for your Google Cloud API key.\n\n👉 Solution: Generate a free API key directly from Google AI Studio: https://aistudio.google.com/app/apikey and enter it in the "Set Gemini Key" box at the top right.`;
+            }
+
             return { 
               data: { 
-                response: `❌ Direct Gemini API Call Failed: ${lastErrorMsg}\n\nPlease check your Google Gemini API key or quota in Google AI Studio.`,
+                response: `❌ Direct Gemini API Call Failed:\n${userFriendlyErr}`,
                 success: false,
                 error: lastErrorMsg 
               } 
