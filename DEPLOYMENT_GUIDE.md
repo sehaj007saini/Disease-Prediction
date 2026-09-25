@@ -1,8 +1,15 @@
-# 🚀 Deployment Guide - Adding Gemini API Key
+# 🚀 Deployment Guide - Gemini API Configuration
 
-## Overview
+## 🔒 Security-First Architecture
 
-This guide explains how to add your Gemini API key to your deployed project on different platforms.
+**IMPORTANT:** Your application uses a **secure backend proxy** for Gemini API calls. The API key is **ONLY** stored on the backend server, never exposed to the browser.
+
+```
+Frontend → Backend API → Gemini API
+         (no key)     (key stored here)
+```
+
+This prevents users from stealing your API key through browser inspection.
 
 ---
 
@@ -12,21 +19,22 @@ This guide explains how to add your Gemini API key to your deployed project on d
 
 1. Go to https://dashboard.render.com/
 2. Sign in to your account
-3. Find your **disease-frontend** service
+3. Find your **disease-backend** service (NOT frontend!)
 
-### Step 2: Add Environment Variable
+### Step 2: Add Environment Variable to Backend
 
-1. Click on your **disease-frontend** service
+1. Click on your **disease-backend** service
 2. Go to **"Environment"** tab (left sidebar)
 3. Click **"Add Environment Variable"** button
 4. Add the following:
    ```
-   Key: VITE_GEMINI_API_KEY
+   Key: GEMINI_API_KEY
    Value: AIzaSyDxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  (your actual API key)
+   Type: Secret
    ```
 5. Click **"Save Changes"**
 
-### Step 3: Redeploy
+### Step 3: Redeploy Backend
 
 The service will automatically redeploy with the new environment variable.
 
@@ -34,9 +42,15 @@ The service will automatically redeploy with the new environment variable.
 1. Go to **"Manual Deploy"** section
 2. Click **"Clear build cache & deploy"**
 
+### ❌ DO NOT Add to Frontend
+
+**Do NOT add `VITE_GEMINI_API_KEY` to the frontend service!** This would expose your API key to anyone using your website.
+
+The frontend already routes requests through your backend at `/api/v1/gemini/chat`.
+
 ### ⏱️ Deployment Time
-- Build time: ~2-3 minutes
-- Total time: ~5 minutes
+- Backend build time: ~5-8 minutes
+- Frontend: No changes needed (already deployed)
 
 ---
 

@@ -32,7 +32,12 @@
   .dark div,
   .dark label,
   .dark td,
-  .dark th {
+  .dark th,
+  .dark li,
+  .dark a,
+  .dark strong,
+  .dark em,
+  .dark small {
     color: inherit;
   }
 
@@ -76,6 +81,11 @@
   .dark .text-gray-500:not([class*="dark:text-"]) {
     color: #94A3B8 !important;
   }
+  
+  /* Override black text in dark mode */
+  .dark .text-black:not([class*="dark:text-"]) {
+    color: #F8FAFC !important;
+  }
 
   /* Force visibility for all font weights in dark mode */
   .dark .font-bold,
@@ -114,6 +124,7 @@
   .dark select,
   .dark textarea {
     color: #F8FAFC !important;
+    background-color: #1E293B;
   }
 
   /* Placeholder text in dark mode */
@@ -125,6 +136,20 @@
   /* Force visibility for any remaining text */
   .dark * {
     color: inherit;
+  }
+  
+  /* Ensure all paragraph and text elements are visible */
+  .dark p:not([class*="text-"]),
+  .dark div:not([class*="text-"]),
+  .dark span:not([class*="text-"]) {
+    color: #E2E8F0;
+  }
+  
+  /* Fix for any elements that might have inline or hardcoded dark colors */
+  .dark [style*="color: black"],
+  .dark [style*="color:#000"],
+  .dark [style*="color: rgb(0,0,0)"] {
+    color: #F8FAFC !important;
   }
 
   h1, h2, h3, h4, h5, h6 {

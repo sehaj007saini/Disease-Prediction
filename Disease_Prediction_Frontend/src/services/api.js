@@ -527,11 +527,48 @@ export const api = {
       return fetchWithFallback(
         `${BASE_URL}/gemini/chat`,
         { method: 'POST', body: JSON.stringify(data) },
-        () => {
-          // Fallback response when backend is not available
+        async () => {
+          // Fallback when Java backend is offline or unreachable (e.g. Vercel static host)
+          const customKey = localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY;
           const message = data.message || '';
-          const lower = message.toLowerCase();
           
+          if (customKey && customKey.trim().length > 10) {
+            try {
+              const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(customKey.trim())}`;
+              const promptText = `You are MedAssist AI, an expert clinical assistant. Answer concisely and accurately based on medical guidelines (ADA/AHA/KDIGO).\nUser Question: ${message}`;
+              
+              const res = await fetch(geminiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: [{ parts: [{ text: promptText }] }]
+                })
+              });
+              
+              if (res.ok) {
+                const json = await res.json();
+                const replyText = json.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (replyText) {
+                  return { data: { response: replyText, success: true } };
+                }
+              } else {
+                const errData = await res.json().catch(() => ({}));
+                const errMsg = errData.error?.message || `HTTP ${res.status}`;
+                return { 
+                  data: { 
+                    response: `❌ Direct Gemini API Call Failed (${res.status}): ${errMsg}\n\nPlease check your Google Gemini API key.`,
+                    success: false,
+                    error: errMsg 
+                  } 
+                };
+              }
+            } catch (clientErr) {
+              console.error('Direct Gemini Client API Call failed:', clientErr);
+            }
+          }
+
+          // Static keyword fallback response if no client key is set
+          const lower = message.toLowerCase();
           let response = '';
           if (lower.includes('hba1c') || lower.includes('diabetes') || lower.includes('7.2')) {
             response = 'An HbA1c level of 7.2% indicates diabetic range (≥6.5% standard threshold). According to American Diabetes Association (ADA) guidelines, targeted lifestyle modifications and glycemic control (targeting HbA1c < 7.0%) reduce microvascular complications by up to 37%. Please consult your healthcare provider for personalized treatment.';
@@ -546,10 +583,10 @@ export const api = {
           } else if (lower.includes('heart') || lower.includes('cardiovascular') || lower.includes('cardiac')) {
             response = 'Cardiovascular risk factors include: hypertension, high LDL cholesterol (>100 mg/dL), smoking, diabetes, obesity, and sedentary lifestyle. AHA recommends 150 min/week moderate aerobic exercise, Mediterranean diet, and maintaining healthy BMI (18.5-24.9). Regular cardiac screenings are important.';
           } else {
-            response = 'Based on clinical guidelines (ADA/AHA/KDIGO), maintaining physiological parameters within standard reference ranges significantly lowers multi-disease risk. Please provide more specific details about your health concern, and I can offer targeted clinical information. Remember to consult healthcare providers for personalized medical advice.';
+            response = '⚠️ MedAssist AI is currently in offline Demo Mode (Java backend not reachable at /api/v1).\n\nTo enable live Gemini AI queries on Vercel:\n1. Click "Set Gemini API Key" at top-right to save your key in browser, OR\n2. Set `GEMINI_API_KEY` in your Spring Boot backend server.\n\n(Standard clinical guidance: Based on ADA/AHA/KDIGO guidelines, maintaining physiological parameters within standard reference ranges significantly lowers multi-disease risk.)';
           }
           
-          return { data: { response: response, success: true } };
+          return { data: { response: response, success: false } };
         }
       );
     }

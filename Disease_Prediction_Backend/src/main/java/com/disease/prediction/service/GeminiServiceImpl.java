@@ -21,10 +21,10 @@ public class GeminiServiceImpl implements GeminiService {
 
     private static final Logger logger = LoggerFactory.getLogger(GeminiServiceImpl.class);
 
-    @Value("${gemini.api.key:#{null}}")
+    @Value("${gemini.api.key:your_gemini_api_key_here}")
     private String geminiApiKey;
 
-    @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent}")
+    @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent}")
     private String geminiApiUrl;
 
     private final RestTemplate restTemplate;
@@ -38,9 +38,17 @@ public class GeminiServiceImpl implements GeminiService {
     @Override
     public GeminiChatResponseDto sendMessage(GeminiChatRequestDto request) {
         // Check if API key is configured
-        if (geminiApiKey == null || geminiApiKey.isEmpty() || geminiApiKey.equals("your_gemini_api_key_here")) {
-            logger.warn("Gemini API key not configured, using fallback response");
-            return new GeminiChatResponseDto(getFallbackResponse(request.getMessage()), true);
+        if (geminiApiKey == null || geminiApiKey.trim().isEmpty() || geminiApiKey.equalsIgnoreCase("your_gemini_api_key_here")) {
+            logger.warn("Gemini API key is not configured on backend server");
+            return new GeminiChatResponseDto(
+                "⚠️ Gemini API Key is not configured on the backend server.\n\n" +
+                "To enable live Gemini AI responses:\n" +
+                "1. Set `GEMINI_API_KEY=your_actual_api_key` in your environment variables or backend `.env` / `application.properties`.\n" +
+                "2. If deployed on Render/Docker, configure `GEMINI_API_KEY` in environment variables.\n\n" +
+                "Fallback response for your query:\n" + getFallbackResponse(request.getMessage()),
+                false,
+                "Gemini API key missing or unconfigured"
+            );
         }
 
         try {
@@ -55,11 +63,25 @@ public class GeminiServiceImpl implements GeminiService {
 
             return new GeminiChatResponseDto(response, true);
 
+        } catch (org.springframework.web.client.HttpStatusCodeException httpErr) {
+            logger.error("Gemini API HTTP Error {}: {}", httpErr.getStatusCode(), httpErr.getResponseBodyAsString(), httpErr);
+            String errDetail = "Google Gemini API returned status code " + httpErr.getStatusCode() + ": " + httpErr.getResponseBodyAsString();
+            return new GeminiChatResponseDto(
+                "❌ Gemini API Call Failed (" + httpErr.getStatusCode() + "):\n" +
+                (httpErr.getStatusCode() == HttpStatus.FORBIDDEN || httpErr.getStatusCode() == HttpStatus.UNAUTHORIZED
+                    ? "Your GEMINI_API_KEY appears to be invalid or unauthorized. Please verify your Google Gemini API key."
+                    : "Error: " + httpErr.getMessage()) +
+                "\n\nFallback clinical guidance:\n" + getFallbackResponse(request.getMessage()),
+                false,
+                errDetail
+            );
         } catch (Exception e) {
             logger.error("Error calling Gemini API: {}", e.getMessage(), e);
-            // Return fallback response on error
-            return new GeminiChatResponseDto(getFallbackResponse(request.getMessage()), true, 
-                    "API error - using fallback response");
+            return new GeminiChatResponseDto(
+                "⚠️ Gemini API Connection Error: " + e.getMessage() + "\n\nFallback clinical guidance:\n" + getFallbackResponse(request.getMessage()),
+                false, 
+                "API error - " + e.getMessage()
+            );
         }
     }
 
