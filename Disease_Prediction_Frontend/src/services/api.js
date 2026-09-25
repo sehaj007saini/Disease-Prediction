@@ -533,38 +533,59 @@ export const api = {
           const message = data.message || '';
           
           if (customKey && customKey.trim().length > 10) {
-            try {
-              const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(customKey.trim())}`;
-              const promptText = `You are MedAssist AI, an expert clinical assistant. Answer concisely and accurately based on medical guidelines (ADA/AHA/KDIGO).\nUser Question: ${message}`;
-              
-              const res = await fetch(geminiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contents: [{ parts: [{ text: promptText }] }]
-                })
-              });
-              
-              if (res.ok) {
-                const json = await res.json();
-                const replyText = json.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (replyText) {
-                  return { data: { response: replyText, success: true } };
+            const cleanKey = customKey.trim();
+            const modelsToTry = [
+              'gemini-2.0-flash',
+              'gemini-1.5-flash-latest',
+              'gemini-1.5-flash',
+              'gemini-1.5-pro',
+              'gemini-2.5-flash'
+            ];
+            
+            let lastErrorMsg = '';
+
+            for (const modelName of modelsToTry) {
+              try {
+                const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(cleanKey)}`;
+                const promptText = `You are MedAssist AI, an expert clinical assistant. Answer concisely and accurately based on medical guidelines (ADA/AHA/KDIGO).\nUser Question: ${message}`;
+                
+                const res = await fetch(geminiUrl, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    contents: [{ parts: [{ text: promptText }] }]
+                  })
+                });
+                
+                if (res.ok) {
+                  const json = await res.json();
+                  const replyText = json.candidates?.[0]?.content?.parts?.[0]?.text;
+                  if (replyText) {
+                    return { data: { response: replyText, success: true } };
+                  }
+                } else {
+                  const errData = await res.json().catch(() => ({}));
+                  lastErrorMsg = errData.error?.message || `HTTP ${res.status}`;
+                  // If 404 (model not found), continue loop to try next model in list
+                  if (res.status === 404) {
+                    continue;
+                  }
+                  // For non-404 errors (like 403 Invalid Key), break early and show error
+                  break;
                 }
-              } else {
-                const errData = await res.json().catch(() => ({}));
-                const errMsg = errData.error?.message || `HTTP ${res.status}`;
-                return { 
-                  data: { 
-                    response: `❌ Direct Gemini API Call Failed (${res.status}): ${errMsg}\n\nPlease check your Google Gemini API key.`,
-                    success: false,
-                    error: errMsg 
-                  } 
-                };
+              } catch (clientErr) {
+                console.error(`Direct Gemini Client API Call (${modelName}) failed:`, clientErr);
+                lastErrorMsg = clientErr.message;
               }
-            } catch (clientErr) {
-              console.error('Direct Gemini Client API Call failed:', clientErr);
             }
+
+            return { 
+              data: { 
+                response: `❌ Direct Gemini API Call Failed: ${lastErrorMsg}\n\nPlease check your Google Gemini API key or quota in Google AI Studio.`,
+                success: false,
+                error: lastErrorMsg 
+              } 
+            };
           }
 
           // Static keyword fallback response if no client key is set
