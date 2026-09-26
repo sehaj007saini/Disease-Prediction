@@ -552,12 +552,14 @@ export const api = {
             }
           };
 
-          if (customKey && customKey.trim().length > 10 && !customKey.toLowerCase().includes('your_gemini_api_key')) {
-            const cleanKey = customKey.trim();
+          // Check for user-provided key saved in localStorage
+          const savedKey = localStorage.getItem('gemini_api_key');
+          
+          if (savedKey && savedKey.trim().length > 10) {
+            const cleanKey = savedKey.trim();
             const endpointsToTry = [
               `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(cleanKey)}`,
-              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(cleanKey)}`,
-              `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${encodeURIComponent(cleanKey)}`
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${encodeURIComponent(cleanKey)}`
             ];
             
             let lastErrorMsg = '';
@@ -585,12 +587,10 @@ export const api = {
                   const errData = await res.json().catch(() => ({}));
                   lastErrorMsg = errData.error?.message || `HTTP ${res.status}`;
                   
-                  if (res.status === 400 || res.status === 403 || lastErrorMsg.toLowerCase().includes('api key')) {
+                  if (res.status === 400 || res.status === 403 || lastErrorMsg.toLowerCase().includes('key')) {
                     isKeyInvalid = true;
-                    break; // Stop retrying if the key itself is rejected by Google
+                    break; // Invalid key rejected by Google
                   }
-                  
-                  continue; // Try next model endpoint on 429/503 temporary overload
                 }
               } catch (clientErr) {
                 console.error('Direct Gemini Client API Call failed:', clientErr);
@@ -599,24 +599,24 @@ export const api = {
             }
 
             const clinicalFallback = getClinicalFallback(message);
-            let userFriendlyNote = '';
-
             if (isKeyInvalid) {
-              userFriendlyNote = `❌ Invalid Gemini API Key: Google rejected the API key ("${lastErrorMsg}").\n\n👉 Solution: Generate a free API key directly from Google AI Studio: https://aistudio.google.com/app/apikey and click "Set Gemini Key" at the top right.`;
-            } else {
-              userFriendlyNote = `⚠️ Live Gemini API Connection Note: ${lastErrorMsg}`;
+              return { 
+                data: { 
+                  response: `❌ Invalid Gemini API Key: Google rejected the key saved in your browser ("${lastErrorMsg}").\n\n👉 Solution: Generate a free key from Google AI Studio (https://aistudio.google.com/app/apikey) and click "Set Gemini Key" at top-right to update it.\n\n📋 Clinical Guidance Fallback:\n${clinicalFallback}`,
+                  success: false 
+                } 
+              };
             }
 
             return { 
               data: { 
-                response: `${userFriendlyNote}\n\n📋 Clinical Guidance Fallback:\n${clinicalFallback}`,
-                success: false,
-                error: lastErrorMsg 
+                response: `⚠️ Live Gemini API Notice: ${lastErrorMsg}\n\n📋 Clinical Guidance Fallback:\n${clinicalFallback}`,
+                success: false 
               } 
             };
           }
 
-          // Smart clinical response if no API key is saved in browser yet
+          // Smart clinical guidance if no API key is saved in browser yet
           const clinicalFallback = getClinicalFallback(message);
           return { 
             data: { 
