@@ -552,7 +552,7 @@ export const api = {
             }
           };
 
-          if (customKey && customKey.trim().length > 10) {
+          if (customKey && customKey.trim().length > 10 && !customKey.toLowerCase().includes('your_gemini_api_key')) {
             const cleanKey = customKey.trim();
             const endpointsToTry = [
               `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(cleanKey)}`,
@@ -561,7 +561,7 @@ export const api = {
             ];
             
             let lastErrorMsg = '';
-            let hit404Count = 0;
+            let isKeyInvalid = false;
 
             for (const geminiUrl of endpointsToTry) {
               try {
@@ -584,11 +584,13 @@ export const api = {
                 } else {
                   const errData = await res.json().catch(() => ({}));
                   lastErrorMsg = errData.error?.message || `HTTP ${res.status}`;
-                  if (res.status === 404) {
-                    hit404Count++;
+                  
+                  if (res.status === 400 || res.status === 403 || lastErrorMsg.toLowerCase().includes('api key')) {
+                    isKeyInvalid = true;
+                    break; // Stop retrying if the key itself is rejected by Google
                   }
-                  // Continue trying fallback endpoints (e.g. gemini-2.0-flash or gemini-1.5-pro) if 404, 429 (rate limit), or 503 (overloaded)
-                  continue;
+                  
+                  continue; // Try next model endpoint on 429/503 temporary overload
                 }
               } catch (clientErr) {
                 console.error('Direct Gemini Client API Call failed:', clientErr);
@@ -596,24 +598,32 @@ export const api = {
               }
             }
 
-            let userFriendlyErr = lastErrorMsg;
-            if (hit404Count > 0 && hit404Count === endpointsToTry.length) {
-              userFriendlyErr = `Google returned 404 (Model Not Found) across all API endpoints.\n\nThis usually occurs when:\n1. Your API key was generated in standard Google Cloud Console instead of Google AI Studio.\n2. The 'Generative Language API' is disabled for your Google Cloud API key.\n\n👉 Solution: Generate a free API key directly from Google AI Studio: https://aistudio.google.com/app/apikey and enter it in the "Set Gemini Key" box at the top right.`;
+            const clinicalFallback = getClinicalFallback(message);
+            let userFriendlyNote = '';
+
+            if (isKeyInvalid) {
+              userFriendlyNote = `❌ Invalid Gemini API Key: Google rejected the API key ("${lastErrorMsg}").\n\n👉 Solution: Generate a free API key directly from Google AI Studio: https://aistudio.google.com/app/apikey and click "Set Gemini Key" at the top right.`;
+            } else {
+              userFriendlyNote = `⚠️ Live Gemini API Connection Note: ${lastErrorMsg}`;
             }
 
-            const clinicalFallback = getClinicalFallback(message);
             return { 
               data: { 
-                response: `⚠️ Direct Gemini API Call Note: ${userFriendlyErr}\n\n📋 Clinical Guidance Fallback:\n${clinicalFallback}`,
+                response: `${userFriendlyNote}\n\n📋 Clinical Guidance Fallback:\n${clinicalFallback}`,
                 success: false,
                 error: lastErrorMsg 
               } 
             };
           }
 
-          // Static keyword fallback response if no client key is set
-          const response = getClinicalFallback(message);
-          return { data: { response: response, success: false } };
+          // Smart clinical response if no API key is saved in browser yet
+          const clinicalFallback = getClinicalFallback(message);
+          return { 
+            data: { 
+              response: `${clinicalFallback}\n\n💡 Tip: To enable live Google Gemini AI responses, click "Set Gemini Key" at top-right and paste your API key from Google AI Studio (https://aistudio.google.com/app/apikey).`, 
+              success: true 
+            } 
+          };
         }
       );
     }
