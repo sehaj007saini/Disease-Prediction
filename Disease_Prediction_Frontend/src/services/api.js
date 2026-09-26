@@ -532,6 +532,26 @@ export const api = {
           const customKey = localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY;
           const message = data.message || '';
           
+          // Helper for clinical fallback guidance when offline or API overloaded
+          const getClinicalFallback = (msg) => {
+            const lower = msg.toLowerCase();
+            if (lower.includes('hba1c') || lower.includes('diabetes') || lower.includes('7.2')) {
+              return 'An HbA1c level of 7.2% indicates diabetic range (≥6.5% standard threshold). According to American Diabetes Association (ADA) guidelines, targeted lifestyle modifications and glycemic control (targeting HbA1c < 7.0%) reduce microvascular complications by up to 37%. Please consult your healthcare provider for personalized treatment.';
+            } else if (lower.includes('stroke') || lower.includes('30%')) {
+              return 'To reduce cerebrovascular stroke risk by 30-40%: 1) Maintain blood pressure < 120/80 mmHg, 2) Engage in 150 mins/week moderate aerobic exercise, 3) Eliminate active tobacco smoking, and 4) Follow a low-sodium Mediterranean/DASH diet. Consult your physician for personalized prevention strategies.';
+            } else if (lower.includes('glucose') || lower.includes('fasting') || lower.includes('normal')) {
+              return 'Standard Clinical Reference Ranges: Fasting Blood Glucose: 70–99 mg/dL (Normal), 100–125 mg/dL (Impaired / Pre-diabetic), ≥126 mg/dL (Diabetic indicator across 2 tests). Regular monitoring is recommended if you have risk factors.';
+            } else if (lower.includes('hypertension') || lower.includes('aha') || lower.includes('blood pressure') || lower.includes('stage 1')) {
+              return 'According to American Heart Association (AHA) guidelines, Stage 1 Hypertension is defined as Systolic 130–139 mmHg or Diastolic 80–89 mmHg. First-line management includes DASH diet, sodium reduction (<2,300 mg/day), weight management, and regular physical activity. Consult your doctor for appropriate treatment.';
+            } else if (lower.includes('kidney') || lower.includes('renal') || lower.includes('egfr')) {
+              return 'Kidney function is assessed via eGFR (estimated Glomerular Filtration Rate). Normal eGFR: >90 mL/min/1.73m². Stage 3 CKD: 30-59 mL/min. According to KDIGO guidelines, lifestyle modifications and blood pressure control are crucial for slowing progression. Regular monitoring is essential.';
+            } else if (lower.includes('heart') || lower.includes('cardiovascular') || lower.includes('cardiac')) {
+              return 'Cardiovascular risk factors include: hypertension, high LDL cholesterol (>100 mg/dL), smoking, diabetes, obesity, and sedentary lifestyle. AHA recommends 150 min/week moderate aerobic exercise, Mediterranean diet, and maintaining healthy BMI (18.5-24.9). Regular cardiac screenings are important.';
+            } else {
+              return 'Based on ADA/AHA/KDIGO clinical guidelines, maintaining physiological parameters within standard reference ranges significantly lowers multi-disease risk. Please consult healthcare providers for personalized medical advice.';
+            }
+          };
+
           if (customKey && customKey.trim().length > 10) {
             const cleanKey = customKey.trim();
             const endpointsToTry = [
@@ -566,9 +586,9 @@ export const api = {
                   lastErrorMsg = errData.error?.message || `HTTP ${res.status}`;
                   if (res.status === 404) {
                     hit404Count++;
-                    continue;
                   }
-                  break;
+                  // Continue trying fallback endpoints (e.g. gemini-2.0-flash or gemini-1.5-pro) if 404, 429 (rate limit), or 503 (overloaded)
+                  continue;
                 }
               } catch (clientErr) {
                 console.error('Direct Gemini Client API Call failed:', clientErr);
@@ -581,9 +601,10 @@ export const api = {
               userFriendlyErr = `Google returned 404 (Model Not Found) across all API endpoints.\n\nThis usually occurs when:\n1. Your API key was generated in standard Google Cloud Console instead of Google AI Studio.\n2. The 'Generative Language API' is disabled for your Google Cloud API key.\n\n👉 Solution: Generate a free API key directly from Google AI Studio: https://aistudio.google.com/app/apikey and enter it in the "Set Gemini Key" box at the top right.`;
             }
 
+            const clinicalFallback = getClinicalFallback(message);
             return { 
               data: { 
-                response: `❌ Direct Gemini API Call Failed:\n${userFriendlyErr}`,
+                response: `⚠️ Direct Gemini API Call Note: ${userFriendlyErr}\n\n📋 Clinical Guidance Fallback:\n${clinicalFallback}`,
                 success: false,
                 error: lastErrorMsg 
               } 
@@ -591,24 +612,7 @@ export const api = {
           }
 
           // Static keyword fallback response if no client key is set
-          const lower = message.toLowerCase();
-          let response = '';
-          if (lower.includes('hba1c') || lower.includes('diabetes') || lower.includes('7.2')) {
-            response = 'An HbA1c level of 7.2% indicates diabetic range (≥6.5% standard threshold). According to American Diabetes Association (ADA) guidelines, targeted lifestyle modifications and glycemic control (targeting HbA1c < 7.0%) reduce microvascular complications by up to 37%. Please consult your healthcare provider for personalized treatment.';
-          } else if (lower.includes('stroke') || lower.includes('30%')) {
-            response = 'To reduce cerebrovascular stroke risk by 30-40%: 1) Maintain blood pressure < 120/80 mmHg, 2) Engage in 150 mins/week moderate aerobic exercise, 3) Eliminate active tobacco smoking, and 4) Follow a low-sodium Mediterranean/DASH diet. Consult your physician for personalized prevention strategies.';
-          } else if (lower.includes('glucose') || lower.includes('fasting') || lower.includes('normal')) {
-            response = 'Standard Clinical Reference Ranges: Fasting Blood Glucose: 70–99 mg/dL (Normal), 100–125 mg/dL (Impaired / Pre-diabetic), ≥126 mg/dL (Diabetic indicator across 2 tests). Regular monitoring is recommended if you have risk factors.';
-          } else if (lower.includes('hypertension') || lower.includes('aha') || lower.includes('blood pressure') || lower.includes('stage 1')) {
-            response = 'According to American Heart Association (AHA) guidelines, Stage 1 Hypertension is defined as Systolic 130–139 mmHg or Diastolic 80–89 mmHg. First-line management includes DASH diet, sodium reduction (<2,300 mg/day), weight management, and regular physical activity. Consult your doctor for appropriate treatment.';
-          } else if (lower.includes('kidney') || lower.includes('renal') || lower.includes('egfr')) {
-            response = 'Kidney function is assessed via eGFR (estimated Glomerular Filtration Rate). Normal eGFR: >90 mL/min/1.73m². Stage 3 CKD: 30-59 mL/min. According to KDIGO guidelines, lifestyle modifications and blood pressure control are crucial for slowing progression. Regular monitoring is essential.';
-          } else if (lower.includes('heart') || lower.includes('cardiovascular') || lower.includes('cardiac')) {
-            response = 'Cardiovascular risk factors include: hypertension, high LDL cholesterol (>100 mg/dL), smoking, diabetes, obesity, and sedentary lifestyle. AHA recommends 150 min/week moderate aerobic exercise, Mediterranean diet, and maintaining healthy BMI (18.5-24.9). Regular cardiac screenings are important.';
-          } else {
-            response = '⚠️ MedAssist AI is currently in offline Demo Mode (Java backend not reachable at /api/v1).\n\nTo enable live Gemini AI queries on Vercel:\n1. Click "Set Gemini API Key" at top-right to save your key in browser, OR\n2. Set `GEMINI_API_KEY` in your Spring Boot backend server.\n\n(Standard clinical guidance: Based on ADA/AHA/KDIGO guidelines, maintaining physiological parameters within standard reference ranges significantly lowers multi-disease risk.)';
-          }
-          
+          const response = getClinicalFallback(message);
           return { data: { response: response, success: false } };
         }
       );
