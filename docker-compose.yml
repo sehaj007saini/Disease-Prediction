@@ -49,7 +49,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-9a4f2c8d7e6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:80,http://localhost}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-your_gemini_api_key_here}
-      GEMINI_API_URL: ${GEMINI_API_URL:-https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent}
+      GEMINI_API_URL: ${GEMINI_API_URL:-https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent}
     depends_on:
       db:
         condition: service_healthy

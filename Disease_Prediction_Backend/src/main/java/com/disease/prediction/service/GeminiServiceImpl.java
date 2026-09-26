@@ -24,7 +24,7 @@ public class GeminiServiceImpl implements GeminiService {
     @Value("${gemini.api.key:your_gemini_api_key_here}")
     private String geminiApiKey;
 
-    @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent}")
+    @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent}")
     private String geminiApiUrl;
 
     private final RestTemplate restTemplate;
