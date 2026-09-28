@@ -24,7 +24,7 @@ public class GeminiServiceImpl implements GeminiService {
     @Value("${gemini.api.key:your_gemini_api_key_here}")
     private String geminiApiKey;
 
-    @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent}")
+    @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent}")
     private String geminiApiUrl;
 
     private final RestTemplate restTemplate;
@@ -133,8 +133,12 @@ public class GeminiServiceImpl implements GeminiService {
     }
 
     private String callGeminiApi(String prompt) throws Exception {
-        // Build request URL with API key
-        String url = geminiApiUrl + "?key=" + geminiApiKey;
+        List<String> urlsToTry = List.of(
+            geminiApiUrl,
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent"
+        );
 
         // Build request body
         Map<String, Object> requestBody = new HashMap<>();
@@ -148,32 +152,42 @@ public class GeminiServiceImpl implements GeminiService {
         // Set headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Create request entity
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-        // Make API call
-        ResponseEntity<String> response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                entity,
-                String.class
-        );
+        Exception lastException = null;
 
-        // Parse response
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            JsonNode root = objectMapper.readTree(response.getBody());
-            JsonNode candidates = root.path("candidates");
-            
-            if (candidates.isArray() && candidates.size() > 0) {
-                JsonNode firstCandidate = candidates.get(0);
-                JsonNode contentNode = firstCandidate.path("content");
-                JsonNode parts = contentNode.path("parts");
-                
-                if (parts.isArray() && parts.size() > 0) {
-                    return parts.get(0).path("text").asText();
+        for (String baseUrl : urlsToTry) {
+            try {
+                String url = baseUrl + "?key=" + geminiApiKey;
+                ResponseEntity<String> response = restTemplate.exchange(
+                        url,
+                        HttpMethod.POST,
+                        entity,
+                        String.class
+                );
+
+                if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                    JsonNode root = objectMapper.readTree(response.getBody());
+                    JsonNode candidates = root.path("candidates");
+                    
+                    if (candidates.isArray() && candidates.size() > 0) {
+                        JsonNode firstCandidate = candidates.get(0);
+                        JsonNode contentNode = firstCandidate.path("content");
+                        JsonNode parts = contentNode.path("parts");
+                        
+                        if (parts.isArray() && parts.size() > 0) {
+                            return parts.get(0).path("text").asText();
+                        }
+                    }
                 }
+            } catch (Exception e) {
+                logger.warn("Gemini API call failed for model URL {}: {}", baseUrl, e.getMessage());
+                lastException = e;
             }
+        }
+
+        if (lastException != null) {
+            throw lastException;
         }
 
         throw new RuntimeException("Invalid response from Gemini API");
