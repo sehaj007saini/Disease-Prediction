@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronDown, ChevronRight, Watch, UserCheck, Shield, Settings, Bell, TrendingUp, Pill
+  Activity, LayoutDashboard, Stethoscope, Users, Layers, Server, ShieldCheck, Zap, Sun, Moon, Cpu, Sliders, Bot, Sparkles, LogOut, LogIn, Menu, X, ChevronDown, ChevronRight, Watch, UserCheck, Shield, Settings, Bell, TrendingUp, Pill, FileScan
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -31,9 +31,11 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus, mlStatu
     { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
     { id: 'patients', label: 'Patients', icon: Users },
     { id: 'predict', label: 'Screening', icon: Stethoscope },
+    { id: 'imaging', label: 'Imaging AI', icon: FileScan },
     { id: 'multi', label: 'Risk Analysis', icon: Activity },
     { id: 'batch', label: 'Analytics', icon: Layers },
   ];
+
 
   const secondaryTools = [
     { id: 'simulate', label: 'Counterfactual Analysis', subtitle: 'What-if risk scenarios', icon: Sliders },

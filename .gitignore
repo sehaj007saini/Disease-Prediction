@@ -32,6 +32,7 @@ __pycache__/
 *.pyo
 .pytest_cache/
 .ipynb_checkpoints/
+catboost_info/
 
 # ML Models & Datasets (Excluded by default due to size; remove if using Git LFS)
 *.pkl

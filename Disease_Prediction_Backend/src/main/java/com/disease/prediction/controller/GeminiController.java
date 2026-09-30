@@ -2,6 +2,8 @@ package com.disease.prediction.controller;
 
 import com.disease.prediction.dto.GeminiChatRequestDto;
 import com.disease.prediction.dto.GeminiChatResponseDto;
+import com.disease.prediction.dto.MedicalImageAnalysisRequestDto;
+import com.disease.prediction.dto.MedicalImageAnalysisResponseDto;
 import com.disease.prediction.service.GeminiService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +25,15 @@ public class GeminiController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/analyze-image")
+    public ResponseEntity<MedicalImageAnalysisResponseDto> analyzeImage(@RequestBody MedicalImageAnalysisRequestDto request) {
+        MedicalImageAnalysisResponseDto response = geminiService.analyzeMedicalImage(request);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Gemini service is running");
     }
 }
+

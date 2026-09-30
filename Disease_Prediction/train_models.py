@@ -1,96 +1,179 @@
 import os
+import json
+import joblib
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
-import joblib
+from sklearn.model_selection import StratifiedKFold, cross_validate
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier, ExtraTreesClassifier, VotingClassifier
+from sklearn.metrics import accuracy_score, roc_auc_score, precision_score, recall_score, f1_score, confusion_matrix
+from catboost import CatBoostClassifier
+
+from feature_engineering import preprocess_dataframe, encode_gender, encode_smoking
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(BASE_DIR, "diabetes.csv")
+METRICS_PATH = os.path.join(BASE_DIR, "metrics.json")
+
+# Optimal clinical decision thresholds to maximize F1-score & Recall on imbalanced targets
+OPTIMAL_THRESHOLDS = {
+    "diabetes": 0.40,
+    "heart_disease": 0.15,
+    "hypertension": 0.15,
+    "kidney_disease": 0.50,
+    "stroke": 0.50
+}
 
 def train_and_save_models():
-    print("Loading dataset...")
+    print("Loading dataset...", flush=True)
     df = pd.read_csv(CSV_PATH)
+    df_proc = preprocess_dataframe(df)
 
-    # Encode categorical columns
-    le_gender = LabelEncoder()
-    df["gender_encoded"] = le_gender.fit_transform(df["gender"])
+    # Define synthetic targets for clinical risk profiles
+    df_proc["kidney_disease"] = (
+        (df_proc["age"] > 55).astype(int) +
+        (df_proc["hypertension"] == 1).astype(int) * 2 +
+        (df_proc["blood_glucose_level"] > 140).astype(int) * 2 +
+        (df_proc["HbA1c_level"] > 6.5).astype(int) * 2 +
+        (df_proc["bmi"] > 30).astype(int) >= 4
+    ).astype(int)
 
-    le_smoking = LabelEncoder()
-    df["smoking_encoded"] = le_smoking.fit_transform(df["smoking_history"])
+    df_proc["stroke"] = (
+        (df_proc["age"] > 60).astype(int) * 2 +
+        (df_proc["hypertension"] == 1).astype(int) * 2 +
+        (df_proc["heart_disease"] == 1).astype(int) * 2 +
+        (df_proc["blood_glucose_level"] > 150).astype(int) * 2 +
+        (df_proc["bmi"] > 30).astype(int) +
+        (df_proc["smoking_encoded"] > 0).astype(int) >= 5
+    ).astype(int)
 
-    # Save encoders for reference if needed
-    joblib.dump(le_gender, os.path.join(BASE_DIR, "gender_encoder.pkl"))
-    joblib.dump(le_smoking, os.path.join(BASE_DIR, "smoking_encoder.pkl"))
+    disease_configs = {
+        "diabetes": {
+            "target": "diabetes",
+            "model_file": "diabetes_model.pkl",
+            "features": ['gender_encoded', 'age', 'hypertension', 'heart_disease', 'smoking_encoded', 'bmi', 'HbA1c_level', 'blood_glucose_level', 'glucose_hba1c_prod', 'glucose_hba1c_ratio', 'is_high_hba1c', 'is_prediabetic', 'is_high_glucose', 'bmi_age_inter', 'metabolic_syndrome_score'],
+            "display_name": "Gradient-Boosted Ensemble (HistGBM + RF + CatBoost)"
+        },
+        "heart_disease": {
+            "target": "heart_disease",
+            "model_file": "heart_disease_model.pkl",
+            "features": ['gender_encoded', 'age', 'hypertension', 'smoking_encoded', 'bmi', 'HbA1c_level', 'blood_glucose_level', 'diabetes', 'glucose_hba1c_prod', 'glucose_hba1c_ratio', 'is_high_hba1c', 'is_prediabetic', 'is_high_glucose', 'bmi_age_inter', 'metabolic_syndrome_score'],
+            "display_name": "Class-Weighted Gradient Boosted Ensemble"
+        },
+        "hypertension": {
+            "target": "hypertension",
+            "model_file": "hypertension_model.pkl",
+            "features": ['gender_encoded', 'age', 'heart_disease', 'smoking_encoded', 'bmi', 'HbA1c_level', 'blood_glucose_level', 'diabetes', 'glucose_hba1c_prod', 'glucose_hba1c_ratio', 'is_high_hba1c', 'is_prediabetic', 'is_high_glucose', 'bmi_age_inter', 'metabolic_syndrome_score'],
+            "display_name": "Class-Weighted Gradient Boosted Ensemble"
+        },
+        "kidney_disease": {
+            "target": "kidney_disease",
+            "model_file": "kidney_disease_model.pkl",
+            "features": ['gender_encoded', 'age', 'hypertension', 'heart_disease', 'smoking_encoded', 'bmi', 'HbA1c_level', 'blood_glucose_level', 'diabetes', 'glucose_hba1c_prod', 'glucose_hba1c_ratio', 'is_high_hba1c', 'is_prediabetic', 'is_high_glucose', 'bmi_age_inter', 'metabolic_syndrome_score'],
+            "display_name": "Multi-Biomarker Renal Classifier"
+        },
+        "stroke": {
+            "target": "stroke",
+            "model_file": "stroke_model.pkl",
+            "features": ['gender_encoded', 'age', 'hypertension', 'heart_disease', 'smoking_encoded', 'bmi', 'HbA1c_level', 'blood_glucose_level', 'diabetes', 'glucose_hba1c_prod', 'glucose_hba1c_ratio', 'is_high_hba1c', 'is_prediabetic', 'is_high_glucose', 'bmi_age_inter', 'metabolic_syndrome_score'],
+            "display_name": "Cerebrovascular Risk Assessment Ensemble"
+        }
+    }
 
-    # Feature matrix: gender, age, hypertension, heart_disease, smoking_encoded, bmi, HbA1c_level, blood_glucose_level
-    features = ["gender_encoded", "age", "hypertension", "heart_disease", "smoking_encoded", "bmi", "HbA1c_level", "blood_glucose_level"]
+    metrics_registry = {}
 
-    # 1. Train Diabetes Model
-    print("Training Diabetes model...")
-    X_diab = df[features]
-    y_diab = df["diabetes"]
-    clf_diab = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=12)
-    clf_diab.fit(X_diab, y_diab)
-    joblib.dump(clf_diab, os.path.join(BASE_DIR, "diabetes_model.pkl"))
-    print("Saved diabetes_model.pkl")
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-    # 2. Train Heart Disease Classifier
-    print("Training Heart Disease model...")
-    X_hd = df[["gender_encoded", "age", "hypertension", "smoking_encoded", "bmi", "HbA1c_level", "blood_glucose_level", "diabetes"]]
-    y_hd = df["heart_disease"]
-    clf_hd = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=12)
-    clf_hd.fit(X_hd, y_hd)
-    joblib.dump(clf_hd, os.path.join(BASE_DIR, "heart_disease_model.pkl"))
-    print("Saved heart_disease_model.pkl")
+    for d_key, config in disease_configs.items():
+        print(f"\n==================================================", flush=True)
+        print(f"Training & Evaluating Model for: {d_key.upper()}", flush=True)
+        print(f"==================================================", flush=True)
 
-    # 3. Train Hypertension Risk Model
-    print("Training Hypertension model...")
-    X_hyp = df[["gender_encoded", "age", "heart_disease", "smoking_encoded", "bmi", "HbA1c_level", "blood_glucose_level", "diabetes"]]
-    y_hyp = df["hypertension"]
-    clf_hyp = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=12)
-    clf_hyp.fit(X_hyp, y_hyp)
-    joblib.dump(clf_hyp, os.path.join(BASE_DIR, "hypertension_model.pkl"))
-    print("Saved hypertension_model.pkl")
+        feature_cols = config["features"]
+        X = df_proc[feature_cols]
+        y = df_proc[config["target"]]
 
-    # 4. Train Chronic Kidney Disease Risk Model (Synthetic target based on clinical risk indicators)
-    print("Training Kidney Disease model...")
-    # Clinical heuristic for renal risk: high age + hypertension + high glucose/HbA1c + high BMI
-    kidney_risk = (
-        (df["age"] > 55).astype(int) +
-        (df["hypertension"] == 1).astype(int) * 2 +
-        (df["blood_glucose_level"] > 140).astype(int) * 2 +
-        (df["HbA1c_level"] > 6.5).astype(int) * 2 +
-        (df["bmi"] > 30).astype(int)
-    )
-    y_kidney = (kidney_risk >= 4).astype(int)
+        # Configure base estimators for ensemble
+        if d_key in ["heart_disease", "hypertension"]:
+            m1 = HistGradientBoostingClassifier(max_iter=250, learning_rate=0.05, max_depth=10, class_weight='balanced', random_state=42)
+            m2 = RandomForestClassifier(n_estimators=150, max_depth=14, class_weight='balanced', random_state=42, n_jobs=-1)
+            m3 = CatBoostClassifier(iterations=250, depth=6, verbose=0, random_state=42, auto_class_weights='Balanced')
+        else:
+            m1 = HistGradientBoostingClassifier(max_iter=250, learning_rate=0.05, max_depth=10, random_state=42)
+            m2 = RandomForestClassifier(n_estimators=150, max_depth=14, random_state=42, n_jobs=-1)
+            m3 = CatBoostClassifier(iterations=250, depth=6, verbose=0, random_state=42)
 
-    X_kidney = df[features]
-    clf_kidney = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=12)
-    clf_kidney.fit(X_kidney, y_kidney)
-    joblib.dump(clf_kidney, os.path.join(BASE_DIR, "kidney_disease_model.pkl"))
-    print("Saved kidney_disease_model.pkl")
+        ensemble = VotingClassifier(
+            estimators=[('hgbm', m1), ('rf', m2), ('catboost', m3)],
+            voting='soft'
+        )
 
-    # 5. Train Cerebrovascular / Stroke Risk Model (Clinical heuristic: Age, Hypertension, Heart Disease, Glucose, Smoking, BMI)
-    print("Training Stroke Risk model...")
-    stroke_risk = (
-        (df["age"] > 60).astype(int) * 2 +
-        (df["hypertension"] == 1).astype(int) * 2 +
-        (df["heart_disease"] == 1).astype(int) * 2 +
-        (df["blood_glucose_level"] > 150).astype(int) * 2 +
-        (df["bmi"] > 30).astype(int) +
-        (df["smoking_encoded"] != 0).astype(int)
-    )
-    y_stroke = (stroke_risk >= 5).astype(int)
+        # Out-of-fold cross-validation metrics
+        oof_probs = np.zeros(len(df_proc))
+        for train_idx, val_idx in cv.split(X, y):
+            X_tr, y_tr = X.iloc[train_idx], y.iloc[train_idx]
+            X_va, y_va = X.iloc[val_idx], y.iloc[val_idx]
+            ensemble.fit(X_tr, y_tr)
+            oof_probs[val_idx] = ensemble.predict_proba(X_va)[:, 1]
 
-    X_stroke = df[features]
-    clf_stroke = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=12)
-    clf_stroke.fit(X_stroke, y_stroke)
-    joblib.dump(clf_stroke, os.path.join(BASE_DIR, "stroke_model.pkl"))
-    print("Saved stroke_model.pkl")
+        thresh = OPTIMAL_THRESHOLDS.get(d_key, 0.50)
+        oof_preds = (oof_probs >= thresh).astype(int)
 
-    print("All models successfully trained and serialized!")
+        acc = round(float(accuracy_score(y, oof_preds)), 4)
+        roc = round(float(roc_auc_score(y, oof_probs)), 4)
+        prec = round(float(precision_score(y, oof_preds, zero_division=0)), 4)
+        rec = round(float(recall_score(y, oof_preds)), 4)
+        f1 = round(float(f1_score(y, oof_preds)), 4)
+
+        tn, fp, fn, tp = confusion_matrix(y, oof_preds).ravel()
+        spec = round(float(tn / (tn + fp)), 4) if (tn + fp) > 0 else 0.0
+
+        print(f"Metrics (OOF CV @ threshold={thresh}):", flush=True)
+        print(f"  Accuracy:    {acc * 100:.2f}%", flush=True)
+        print(f"  ROC-AUC:     {roc:.4f}", flush=True)
+        print(f"  Precision:   {prec * 100:.2f}%", flush=True)
+        print(f"  Recall:      {rec * 100:.2f}%", flush=True)
+        print(f"  F1-Score:    {f1:.4f}", flush=True)
+        print(f"  Specificity: {spec * 100:.2f}%", flush=True)
+
+        # Fit final model on full dataset
+        print(f"Fitting final ensemble on full dataset...", flush=True)
+        ensemble.fit(X, y)
+
+        # Feature importances (extracted from RF component)
+        rf_component = ensemble.named_estimators_['rf']
+        importances = rf_component.feature_importances_
+        feature_importance_list = []
+        for feat_name, imp in zip(feature_cols, importances):
+            clean_name = feat_name.replace("_encoded", "").replace("_", " ").title()
+            feature_importance_list.append({
+                "feature": clean_name,
+                "importance": round(float(imp), 4)
+            })
+        feature_importance_list.sort(key=lambda x: x["importance"], reverse=True)
+
+        # Save model file
+        model_filepath = os.path.join(BASE_DIR, config["model_file"])
+        joblib.dump(ensemble, model_filepath)
+        print(f"Saved model artifact: {config['model_file']}", flush=True)
+
+        metrics_registry[d_key] = {
+            "modelName": config["display_name"],
+            "accuracy": acc,
+            "rocAuc": roc,
+            "precision": prec,
+            "recall": rec,
+            "f1Score": f1,
+            "specificity": spec,
+            "optimalThreshold": thresh,
+            "features": feature_cols,
+            "featureImportances": feature_importance_list[:8]
+        }
+
+    # Save governance metrics JSON
+    with open(METRICS_PATH, "w") as f:
+        json.dump(metrics_registry, f, indent=2)
+    print(f"\nSaved dynamic model governance metrics to metrics.json!", flush=True)
+    print("All models successfully trained, optimized, and serialized!", flush=True)
 
 if __name__ == "__main__":
     train_and_save_models()

@@ -20,7 +20,9 @@ import RiskTrendForecasting from './components/RiskTrendForecasting';
 import PatientHealthTimeline from './components/PatientHealthTimeline';
 import MedicationTracker from './components/MedicationTracker';
 import FamilyHealthTree from './components/FamilyHealthTree';
+import MedicalImagingDiagnostic from './components/MedicalImagingDiagnostic';
 import { AuthProvider, useAuth } from './context/AuthContext';
+
 import { api } from './services/api';
 
 function MainApp() {
@@ -125,9 +127,14 @@ function MainApp() {
           />
         )}
 
+        {activeTab === 'imaging' && (
+          <MedicalImagingDiagnostic theme={theme} />
+        )}
+
         {activeTab === 'multi' && (
           <MultiDiseaseScreen />
         )}
+
 
         {activeTab === 'simulate' && (
           <CounterfactualSimulation />
