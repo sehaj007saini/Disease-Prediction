@@ -80,6 +80,7 @@ def train_and_save_models():
     }
 
     metrics_registry = {}
+    is_fast_build = os.environ.get("RENDER") is not None or os.environ.get("FAST_BUILD", "false").lower() == "true"
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
@@ -92,42 +93,66 @@ def train_and_save_models():
         X = df_proc[feature_cols]
         y = df_proc[config["target"]]
 
-        # Configure base estimators for ensemble
+        # Configure base estimators for memory-efficient lightweight ensemble
         if d_key in ["heart_disease", "hypertension"]:
-            m1 = HistGradientBoostingClassifier(max_iter=250, learning_rate=0.05, max_depth=10, class_weight='balanced', random_state=42)
-            m2 = RandomForestClassifier(n_estimators=150, max_depth=14, class_weight='balanced', random_state=42, n_jobs=-1)
-            m3 = CatBoostClassifier(iterations=250, depth=6, verbose=0, random_state=42, auto_class_weights='Balanced')
+            m1 = HistGradientBoostingClassifier(max_iter=100, learning_rate=0.05, max_depth=8, class_weight='balanced', random_state=42)
+            m2 = RandomForestClassifier(n_estimators=50, max_depth=10, class_weight='balanced', random_state=42, n_jobs=-1)
+            m3 = CatBoostClassifier(iterations=80, depth=5, verbose=0, random_state=42, auto_class_weights='Balanced')
         else:
-            m1 = HistGradientBoostingClassifier(max_iter=250, learning_rate=0.05, max_depth=10, random_state=42)
-            m2 = RandomForestClassifier(n_estimators=150, max_depth=14, random_state=42, n_jobs=-1)
-            m3 = CatBoostClassifier(iterations=250, depth=6, verbose=0, random_state=42)
+            m1 = HistGradientBoostingClassifier(max_iter=100, learning_rate=0.05, max_depth=8, random_state=42)
+            m2 = RandomForestClassifier(n_estimators=50, max_depth=10, random_state=42, n_jobs=-1)
+            m3 = CatBoostClassifier(iterations=80, depth=5, verbose=0, random_state=42)
 
         ensemble = VotingClassifier(
             estimators=[('hgbm', m1), ('rf', m2), ('catboost', m3)],
             voting='soft'
         )
 
-        # Out-of-fold cross-validation metrics
-        oof_probs = np.zeros(len(df_proc))
-        for train_idx, val_idx in cv.split(X, y):
-            X_tr, y_tr = X.iloc[train_idx], y.iloc[train_idx]
-            X_va, y_va = X.iloc[val_idx], y.iloc[val_idx]
-            ensemble.fit(X_tr, y_tr)
-            oof_probs[val_idx] = ensemble.predict_proba(X_va)[:, 1]
-
         thresh = OPTIMAL_THRESHOLDS.get(d_key, 0.50)
-        oof_preds = (oof_probs >= thresh).astype(int)
 
-        acc = round(float(accuracy_score(y, oof_preds)), 4)
-        roc = round(float(roc_auc_score(y, oof_probs)), 4)
-        prec = round(float(precision_score(y, oof_preds, zero_division=0)), 4)
-        rec = round(float(recall_score(y, oof_preds)), 4)
-        f1 = round(float(f1_score(y, oof_preds)), 4)
+        if is_fast_build:
+            print("Fast build mode detected (Render / Cloud container). Performing single train/val fit...", flush=True)
+            from sklearn.model_selection import train_test_split
+            X_tr, X_va, y_tr, y_va = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+            ensemble.fit(X_tr, y_tr)
+            val_probs = ensemble.predict_proba(X_va)[:, 1]
+            oof_preds = (val_probs >= thresh).astype(int)
 
-        tn, fp, fn, tp = confusion_matrix(y, oof_preds).ravel()
-        spec = round(float(tn / (tn + fp)), 4) if (tn + fp) > 0 else 0.0
+            acc = round(float(accuracy_score(y_va, oof_preds)), 4)
+            roc = round(float(roc_auc_score(y_va, val_probs)), 4)
+            prec = round(float(precision_score(y_va, oof_preds, zero_division=0)), 4)
+            rec = round(float(recall_score(y_va, oof_preds)), 4)
+            f1 = round(float(f1_score(y_va, oof_preds)), 4)
 
-        print(f"Metrics (OOF CV @ threshold={thresh}):", flush=True)
+            tn, fp, fn, tp = confusion_matrix(y_va, oof_preds).ravel()
+            spec = round(float(tn / (tn + fp)), 4) if (tn + fp) > 0 else 0.0
+
+            print(f"Fitting final ensemble on full dataset...", flush=True)
+            ensemble.fit(X, y)
+        else:
+            # Out-of-fold cross-validation metrics
+            oof_probs = np.zeros(len(df_proc))
+            for train_idx, val_idx in cv.split(X, y):
+                X_tr, y_tr = X.iloc[train_idx], y.iloc[train_idx]
+                X_va, y_va = X.iloc[val_idx], y.iloc[val_idx]
+                ensemble.fit(X_tr, y_tr)
+                oof_probs[val_idx] = ensemble.predict_proba(X_va)[:, 1]
+
+            oof_preds = (oof_probs >= thresh).astype(int)
+
+            acc = round(float(accuracy_score(y, oof_preds)), 4)
+            roc = round(float(roc_auc_score(y, oof_probs)), 4)
+            prec = round(float(precision_score(y, oof_preds, zero_division=0)), 4)
+            rec = round(float(recall_score(y, oof_preds)), 4)
+            f1 = round(float(f1_score(y, oof_preds)), 4)
+
+            tn, fp, fn, tp = confusion_matrix(y, oof_preds).ravel()
+            spec = round(float(tn / (tn + fp)), 4) if (tn + fp) > 0 else 0.0
+
+            print(f"Fitting final ensemble on full dataset...", flush=True)
+            ensemble.fit(X, y)
+
+        print(f"Metrics (@ threshold={thresh}):", flush=True)
         print(f"  Accuracy:    {acc * 100:.2f}%", flush=True)
         print(f"  ROC-AUC:     {roc:.4f}", flush=True)
         print(f"  Precision:   {prec * 100:.2f}%", flush=True)
@@ -135,9 +160,6 @@ def train_and_save_models():
         print(f"  F1-Score:    {f1:.4f}", flush=True)
         print(f"  Specificity: {spec * 100:.2f}%", flush=True)
 
-        # Fit final model on full dataset
-        print(f"Fitting final ensemble on full dataset...", flush=True)
-        ensemble.fit(X, y)
 
         # Feature importances (extracted from RF component)
         rf_component = ensemble.named_estimators_['rf']

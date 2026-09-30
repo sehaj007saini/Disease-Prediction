@@ -1,0 +1,309 @@
+{
+  "diabetes": {
+    "modelName": "Gradient-Boosted Ensemble (HistGBM + RF + CatBoost)",
+    "accuracy": 0.972,
+    "rocAuc": 0.9792,
+    "precision": 0.9612,
+    "recall": 0.6994,
+    "f1Score": 0.8097,
+    "specificity": 0.9974,
+    "optimalThreshold": 0.4,
+    "features": [
+      "gender_encoded",
+      "age",
+      "hypertension",
+      "heart_disease",
+      "smoking_encoded",
+      "bmi",
+      "HbA1c_level",
+      "blood_glucose_level",
+      "glucose_hba1c_prod",
+      "glucose_hba1c_ratio",
+      "is_high_hba1c",
+      "is_prediabetic",
+      "is_high_glucose",
+      "bmi_age_inter",
+      "metabolic_syndrome_score"
+    ],
+    "featureImportances": [
+      {
+        "feature": "Hba1C Level",
+        "importance": 0.3571
+      },
+      {
+        "feature": "Glucose Hba1C Prod",
+        "importance": 0.2928
+      },
+      {
+        "feature": "Blood Glucose Level",
+        "importance": 0.1561
+      },
+      {
+        "feature": "Glucose Hba1C Ratio",
+        "importance": 0.0462
+      },
+      {
+        "feature": "Bmi Age Inter",
+        "importance": 0.0403
+      },
+      {
+        "feature": "Is High Hba1C",
+        "importance": 0.0295
+      },
+      {
+        "feature": "Metabolic Syndrome Score",
+        "importance": 0.0238
+      },
+      {
+        "feature": "Age",
+        "importance": 0.0126
+      }
+    ]
+  },
+  "heart_disease": {
+    "modelName": "Class-Weighted Gradient Boosted Ensemble",
+    "accuracy": 0.5648,
+    "rocAuc": 0.8751,
+    "precision": 0.0817,
+    "recall": 0.981,
+    "f1Score": 0.1508,
+    "specificity": 0.5477,
+    "optimalThreshold": 0.15,
+    "features": [
+      "gender_encoded",
+      "age",
+      "hypertension",
+      "smoking_encoded",
+      "bmi",
+      "HbA1c_level",
+      "blood_glucose_level",
+      "diabetes",
+      "glucose_hba1c_prod",
+      "glucose_hba1c_ratio",
+      "is_high_hba1c",
+      "is_prediabetic",
+      "is_high_glucose",
+      "bmi_age_inter",
+      "metabolic_syndrome_score"
+    ],
+    "featureImportances": [
+      {
+        "feature": "Age",
+        "importance": 0.3811
+      },
+      {
+        "feature": "Bmi Age Inter",
+        "importance": 0.3231
+      },
+      {
+        "feature": "Diabetes",
+        "importance": 0.0483
+      },
+      {
+        "feature": "Bmi",
+        "importance": 0.0426
+      },
+      {
+        "feature": "Gender",
+        "importance": 0.0398
+      },
+      {
+        "feature": "Glucose Hba1C Prod",
+        "importance": 0.0363
+      },
+      {
+        "feature": "Smoking",
+        "importance": 0.0362
+      },
+      {
+        "feature": "Hypertension",
+        "importance": 0.0314
+      }
+    ]
+  },
+  "hypertension": {
+    "modelName": "Class-Weighted Gradient Boosted Ensemble",
+    "accuracy": 0.9826,
+    "rocAuc": 1.0,
+    "precision": 0.8114,
+    "recall": 1.0,
+    "f1Score": 0.8959,
+    "specificity": 0.9812,
+    "optimalThreshold": 0.15,
+    "features": [
+      "gender_encoded",
+      "age",
+      "heart_disease",
+      "smoking_encoded",
+      "bmi",
+      "HbA1c_level",
+      "blood_glucose_level",
+      "diabetes",
+      "glucose_hba1c_prod",
+      "glucose_hba1c_ratio",
+      "is_high_hba1c",
+      "is_prediabetic",
+      "is_high_glucose",
+      "bmi_age_inter",
+      "metabolic_syndrome_score"
+    ],
+    "featureImportances": [
+      {
+        "feature": "Metabolic Syndrome Score",
+        "importance": 0.48
+      },
+      {
+        "feature": "Bmi Age Inter",
+        "importance": 0.1462
+      },
+      {
+        "feature": "Age",
+        "importance": 0.1084
+      },
+      {
+        "feature": "Bmi",
+        "importance": 0.0959
+      },
+      {
+        "feature": "Blood Glucose Level",
+        "importance": 0.0568
+      },
+      {
+        "feature": "Is High Glucose",
+        "importance": 0.0289
+      },
+      {
+        "feature": "Glucose Hba1C Ratio",
+        "importance": 0.0234
+      },
+      {
+        "feature": "Glucose Hba1C Prod",
+        "importance": 0.0222
+      }
+    ]
+  },
+  "kidney_disease": {
+    "modelName": "Multi-Biomarker Renal Classifier",
+    "accuracy": 1.0,
+    "rocAuc": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1Score": 1.0,
+    "specificity": 1.0,
+    "optimalThreshold": 0.5,
+    "features": [
+      "gender_encoded",
+      "age",
+      "hypertension",
+      "heart_disease",
+      "smoking_encoded",
+      "bmi",
+      "HbA1c_level",
+      "blood_glucose_level",
+      "diabetes",
+      "glucose_hba1c_prod",
+      "glucose_hba1c_ratio",
+      "is_high_hba1c",
+      "is_prediabetic",
+      "is_high_glucose",
+      "bmi_age_inter",
+      "metabolic_syndrome_score"
+    ],
+    "featureImportances": [
+      {
+        "feature": "Metabolic Syndrome Score",
+        "importance": 0.2192
+      },
+      {
+        "feature": "Hba1C Level",
+        "importance": 0.1761
+      },
+      {
+        "feature": "Hypertension",
+        "importance": 0.1056
+      },
+      {
+        "feature": "Age",
+        "importance": 0.105
+      },
+      {
+        "feature": "Glucose Hba1C Prod",
+        "importance": 0.0967
+      },
+      {
+        "feature": "Bmi Age Inter",
+        "importance": 0.0559
+      },
+      {
+        "feature": "Blood Glucose Level",
+        "importance": 0.0557
+      },
+      {
+        "feature": "Is High Hba1C",
+        "importance": 0.0435
+      }
+    ]
+  },
+  "stroke": {
+    "modelName": "Cerebrovascular Risk Assessment Ensemble",
+    "accuracy": 1.0,
+    "rocAuc": 1.0,
+    "precision": 1.0,
+    "recall": 0.9996,
+    "f1Score": 0.9998,
+    "specificity": 1.0,
+    "optimalThreshold": 0.5,
+    "features": [
+      "gender_encoded",
+      "age",
+      "hypertension",
+      "heart_disease",
+      "smoking_encoded",
+      "bmi",
+      "HbA1c_level",
+      "blood_glucose_level",
+      "diabetes",
+      "glucose_hba1c_prod",
+      "glucose_hba1c_ratio",
+      "is_high_hba1c",
+      "is_prediabetic",
+      "is_high_glucose",
+      "bmi_age_inter",
+      "metabolic_syndrome_score"
+    ],
+    "featureImportances": [
+      {
+        "feature": "Age",
+        "importance": 0.2717
+      },
+      {
+        "feature": "Blood Glucose Level",
+        "importance": 0.1236
+      },
+      {
+        "feature": "Hypertension",
+        "importance": 0.1105
+      },
+      {
+        "feature": "Metabolic Syndrome Score",
+        "importance": 0.1063
+      },
+      {
+        "feature": "Heart Disease",
+        "importance": 0.1033
+      },
+      {
+        "feature": "Smoking",
+        "importance": 0.0903
+      },
+      {
+        "feature": "Bmi Age Inter",
+        "importance": 0.0781
+      },
+      {
+        "feature": "Is High Glucose",
+        "importance": 0.0279
+      }
+    ]
+  }
+}
