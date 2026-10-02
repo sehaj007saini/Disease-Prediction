@@ -1,15 +1,25 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import joblib
 import os
+import json
 import numpy as np
+
+from feature_engineering import extract_features_from_dict
 
 app = FastAPI(title="Multi-Disease Prediction ML Engine & XAI Platform", version="3.0.0")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Allow cross-origin requests from all origins (backend proxy will also call this)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Load encoders
-le_gender = joblib.load(os.path.join(BASE_DIR, "gender_encoder.pkl"))
-le_smoking = joblib.load(os.path.join(BASE_DIR, "smoking_encoder.pkl"))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+METRICS_PATH = os.path.join(BASE_DIR, "metrics.json")
 
 # Load disease models into registry
 MODELS = {}
@@ -32,119 +42,14 @@ for key, filename in MODEL_FILES.items():
 # Fallback default model
 default_model = MODELS.get("diabetes")
 
-# Pre-computed clinical governance metrics for models
-MODEL_METRICS = {
-    "diabetes": {
-        "modelName": "RandomForestClassifier",
-        "accuracy": 0.962,
-        "rocAuc": 0.978,
-        "precision": 0.941,
-        "recall": 0.925,
-        "f1Score": 0.933,
-        "specificity": 0.971,
-        "features": ["Gender", "Age", "Hypertension", "Heart Disease", "Smoking History", "BMI", "HbA1c Level", "Blood Glucose"],
-        "featureImportances": [
-            {"feature": "HbA1c Level", "importance": 0.384},
-            {"feature": "Blood Glucose Level", "importance": 0.321},
-            {"feature": "Age", "importance": 0.142},
-            {"feature": "Body Mass Index (BMI)", "importance": 0.087},
-            {"feature": "Hypertension History", "importance": 0.035},
-            {"feature": "Heart Disease History", "importance": 0.018},
-            {"feature": "Smoking History", "importance": 0.009},
-            {"feature": "Gender", "importance": 0.004}
-        ]
-    },
-    "heart_disease": {
-        "modelName": "GradientBoostingClassifier",
-        "accuracy": 0.954,
-        "rocAuc": 0.965,
-        "precision": 0.938,
-        "recall": 0.912,
-        "f1Score": 0.925,
-        "specificity": 0.968,
-        "features": ["Gender", "Age", "Hypertension", "Smoking History", "BMI", "HbA1c Level", "Blood Glucose", "Diabetes"],
-        "featureImportances": [
-            {"feature": "Age", "importance": 0.312},
-            {"feature": "Blood Glucose Level", "importance": 0.245},
-            {"feature": "Hypertension History", "importance": 0.188},
-            {"feature": "Body Mass Index (BMI)", "importance": 0.124},
-            {"feature": "Diabetes Status", "importance": 0.068},
-            {"feature": "HbA1c Level", "importance": 0.039},
-            {"feature": "Smoking History", "importance": 0.016},
-            {"feature": "Gender", "importance": 0.008}
-        ]
-    },
-    "hypertension": {
-        "modelName": "RandomForestClassifier",
-        "accuracy": 0.948,
-        "rocAuc": 0.958,
-        "precision": 0.925,
-        "recall": 0.908,
-        "f1Score": 0.916,
-        "specificity": 0.962,
-        "features": ["Gender", "Age", "Heart Disease", "Smoking History", "BMI", "HbA1c Level", "Blood Glucose", "Diabetes"],
-        "featureImportances": [
-            {"feature": "Age", "importance": 0.345},
-            {"feature": "Body Mass Index (BMI)", "importance": 0.278},
-            {"feature": "Blood Glucose Level", "importance": 0.162},
-            {"feature": "Heart Disease History", "importance": 0.095},
-            {"feature": "Diabetes Status", "importance": 0.062},
-            {"feature": "HbA1c Level", "importance": 0.038},
-            {"feature": "Smoking History", "importance": 0.012},
-            {"feature": "Gender", "importance": 0.008}
-        ]
-    },
-    "kidney_disease": {
-        "modelName": "RandomForestClassifier",
-        "accuracy": 0.959,
-        "rocAuc": 0.971,
-        "precision": 0.932,
-        "recall": 0.921,
-        "f1Score": 0.926,
-        "specificity": 0.974,
-        "features": ["Gender", "Age", "Hypertension", "Heart Disease", "Smoking History", "BMI", "HbA1c Level", "Blood Glucose"],
-        "featureImportances": [
-            {"feature": "Blood Glucose Level", "importance": 0.310},
-            {"feature": "Hypertension History", "importance": 0.265},
-            {"feature": "Age", "importance": 0.215},
-            {"feature": "HbA1c Level", "importance": 0.112},
-            {"feature": "Body Mass Index (BMI)", "importance": 0.058},
-            {"feature": "Heart Disease History", "importance": 0.026},
-            {"feature": "Smoking History", "importance": 0.009},
-            {"feature": "Gender", "importance": 0.005}
-        ]
-    },
-    "stroke": {
-        "modelName": "GradientBoostingClassifier",
-        "accuracy": 0.961,
-        "rocAuc": 0.974,
-        "precision": 0.940,
-        "recall": 0.918,
-        "f1Score": 0.929,
-        "specificity": 0.976,
-        "features": ["Gender", "Age", "Hypertension", "Heart Disease", "Smoking History", "BMI", "HbA1c Level", "Blood Glucose"],
-        "featureImportances": [
-            {"feature": "Age", "importance": 0.368},
-            {"feature": "Hypertension History", "importance": 0.242},
-            {"feature": "Blood Glucose Level", "importance": 0.185},
-            {"feature": "Heart Disease History", "importance": 0.104},
-            {"feature": "Body Mass Index (BMI)", "importance": 0.052},
-            {"feature": "Smoking History", "importance": 0.031},
-            {"feature": "HbA1c Level", "importance": 0.012},
-            {"feature": "Gender", "importance": 0.006}
-        ]
-    }
-}
-
-
-def safe_transform(encoder, value, default_val=None):
-    if default_val is None:
-        default_val = encoder.classes_[0]
-    val_str = str(value).strip()
-    for cls in encoder.classes_:
-        if str(cls).lower() == val_str.lower():
-            return encoder.transform([cls])[0]
-    return encoder.transform([default_val])[0]
+# Load dynamic governance metrics produced by train_models.py (with fallback)
+MODEL_METRICS = {}
+if os.path.exists(METRICS_PATH):
+    with open(METRICS_PATH, "r") as f:
+        MODEL_METRICS = json.load(f)
+    print(f"Loaded dynamic model metrics from metrics.json", flush=True)
+else:
+    print("Warning: metrics.json not found – /explain/global will return empty.", flush=True)
 
 
 def calculate_feature_attributions(target_key, features):
@@ -217,26 +122,17 @@ def health_check():
 def execute_single_inference(target_key: str, features: dict):
     model = MODELS.get(target_key, default_model)
 
-    raw_gender = features.get("gender", features.get("Gender", "Female"))
-    raw_smoking = features.get("smoking_history", features.get("smoking", features.get("Smoking History", "never")))
+    # Build the correct feature vector using the shared feature_engineering module.
+    # This produces the exact 15-feature DataFrame the trained models expect.
+    feature_df = extract_features_from_dict(features, target_key=target_key)
+    patient_vector = feature_df.values
+
+    # Extract raw feature values for risk-factor display
     age = float(features.get("age", features.get("Age", 40)))
     hypertension = int(features.get("hypertension", features.get("Hypertension", 0)))
-    heart_disease = int(features.get("heart_disease", features.get("heartDisease", 0)))
     bmi = float(features.get("bmi", features.get("BMI", 25.0)))
     hba1c = float(features.get("HbA1c_level", features.get("hba1c", features.get("HbA1c Level", 5.5))))
     glucose = float(features.get("blood_glucose_level", features.get("glucose", features.get("Blood Glucose Level", 100))))
-
-    gender_encoded = safe_transform(le_gender, raw_gender, "Female")
-    smoking_encoded = safe_transform(le_smoking, raw_smoking, "never")
-
-    if target_key == "heart_disease":
-        diabetes_val = int(features.get("diabetes", 0))
-        patient_vector = [[gender_encoded, age, hypertension, smoking_encoded, bmi, hba1c, glucose, diabetes_val]]
-    elif target_key == "hypertension":
-        diabetes_val = int(features.get("diabetes", 0))
-        patient_vector = [[gender_encoded, age, heart_disease, smoking_encoded, bmi, hba1c, glucose, diabetes_val]]
-    else:
-        patient_vector = [[gender_encoded, age, hypertension, heart_disease, smoking_encoded, bmi, hba1c, glucose]]
 
     prediction = int(model.predict(patient_vector)[0])
 
