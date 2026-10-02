@@ -6,3 +6,5 @@ __pycache__
 .git
 .gitignore
 archive.zip
+catboost_info
+*.ipynb

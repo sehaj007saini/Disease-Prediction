@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold, cross_validate
 from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier, ExtraTreesClassifier, VotingClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score, precision_score, recall_score, f1_score, confusion_matrix
-from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
 
 from feature_engineering import preprocess_dataframe, encode_gender, encode_smoking
 
@@ -51,7 +51,7 @@ def train_and_save_models():
             "target": "diabetes",
             "model_file": "diabetes_model.pkl",
             "features": ['gender_encoded', 'age', 'hypertension', 'heart_disease', 'smoking_encoded', 'bmi', 'HbA1c_level', 'blood_glucose_level', 'glucose_hba1c_prod', 'glucose_hba1c_ratio', 'is_high_hba1c', 'is_prediabetic', 'is_high_glucose', 'bmi_age_inter', 'metabolic_syndrome_score'],
-            "display_name": "Gradient-Boosted Ensemble (HistGBM + RF + CatBoost)"
+            "display_name": "Gradient-Boosted Ensemble (HistGBM + RF + LightGBM)"
         },
         "heart_disease": {
             "target": "heart_disease",
@@ -97,14 +97,14 @@ def train_and_save_models():
         if d_key in ["heart_disease", "hypertension"]:
             m1 = HistGradientBoostingClassifier(max_iter=100, learning_rate=0.05, max_depth=8, class_weight='balanced', random_state=42)
             m2 = RandomForestClassifier(n_estimators=50, max_depth=10, class_weight='balanced', random_state=42, n_jobs=-1)
-            m3 = CatBoostClassifier(iterations=80, depth=5, verbose=0, random_state=42, auto_class_weights='Balanced')
+            m3 = LGBMClassifier(n_estimators=80, max_depth=5, verbose=-1, random_state=42, is_unbalance=True)
         else:
             m1 = HistGradientBoostingClassifier(max_iter=100, learning_rate=0.05, max_depth=8, random_state=42)
             m2 = RandomForestClassifier(n_estimators=50, max_depth=10, random_state=42, n_jobs=-1)
-            m3 = CatBoostClassifier(iterations=80, depth=5, verbose=0, random_state=42)
+            m3 = LGBMClassifier(n_estimators=80, max_depth=5, verbose=-1, random_state=42)
 
         ensemble = VotingClassifier(
-            estimators=[('hgbm', m1), ('rf', m2), ('catboost', m3)],
+            estimators=[('hgbm', m1), ('rf', m2), ('lgbm', m3)],
             voting='soft'
         )
 
